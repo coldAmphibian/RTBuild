@@ -1,0 +1,511 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta charset="utf-8" />
+		<title>RTBuild Documentation</title>
+		<style type="text/css">
+			* {
+				font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+			}
+
+			.proplist {
+
+			}
+
+			.proplist .header {
+				font-size: 12pt;
+				font-weight: bold;
+			}
+
+			.proplist .entry .prop { }
+
+			.proplist .entry .propnote {
+				font-style: italic;
+				font-size: 0.7em;
+			}
+
+			.flagit {
+				font-style: italic;
+			}
+
+			.footnote {
+				font-style: italic;
+				font-size: 0.7em;
+			}
+
+			pre {
+				font-family: Courier;
+			}
+
+			.supported-yes {
+				color: green;
+				text-align: center;
+				font-size: 2em;
+			}
+
+			.supported-yes:before {
+				content: '\2713'
+			}
+
+			.supported-no {
+				color: red;
+				text-align: center;
+				font-size: 2em;
+			}		
+
+			.supported-no:before {
+				content: '\2717';
+			}
+
+			.supported-inprogress {
+				color: darkgoldenrod;
+				text-align: center;
+				font-size: 2em;
+			}		
+
+			.supported-inprogress:before {
+				content: "\2623";	
+			}
+
+		</style>
+	</head>
+	<body>
+		<div>
+			<h3>Forced Compiler Flags</h3>
+			<div>CL:  <span class="flagit">/GF</span></div>
+			<div>GCC: <span class="flagit">-fvisibility=hidden -mno-ms-bitfields</span></div>
+		</div>
+		<h3>Fuckit Notes</h3>
+		There are three levels of properties, Global, Project, and File.<br/>
+		Global properties apply to EVERYTHING.<br/>
+		Project properties apply to everything in that project.<br/>
+		File properties only apply to that specific file.<br/>
+
+		Properties will overwrite one another in the following order:<br/>
+		File > Project > Global<br/>
+		So any global properties are overwritten by project properties, which are overwritten by file properties.
+
+		<!-- ASM Files -->
+		<h3>Custom Tools</h3>
+		<p>
+			Although both GCC and Visual Studio have inbuilt assemblers, <i>AS</i>, and <i>ML</i> respectively, support
+			for ASM files has been implemented as a custom build tool.
+		</p>
+		<p>
+			Custom Build Tools are defined in the target definitions under the &quot;CUSTOMTOOLS&quot; section.<br />
+			For each entry in the section, the key is the name of the tool, the value dictionary holds the properties of the tool.
+		</p>
+		<p>
+			For this example, we'll use the <i>yasm</i> assembler on both x86 and x64 platforms on Windows.<br />
+			In the targets definition:
+			<pre>
+            {
+                "Windows":
+                {
+                        "x86-generic":
+                        {
+                            "CUSTOMTOOLS":
+                            {
+                                "yasm": { "EXE": "yasm", "FLAGS": ["-f", "win32", "-o", "%OUT%", "%IN%"] }
+                            }
+                        },
+                        "x86_64-generic":
+                        {
+                            "CUSTOMTOOLS":
+                            {
+                                "yasm": { "EXE": "yasm", "FLAGS": ["-f", "win64", "-o", "%OUT%", "%IN%"] }
+                            }
+                        }
+                }
+            }
+			</pre>
+			In <i>buildfile.py</i>:
+			<pre>
+            {"name":"arch/x86_64/x86_64.asm", "type":"custom:yasm", "configuration":"*", "platform":"x86_64-*",
+             "output":"%INTDIR%/%IN%.%OBJEXT%", "add_output":[], "add_inputs":[], "link":"true"},
+			</pre>
+			Result:
+		</p>
+
+		<h3>String Substitutions</h3>
+		<table border="1">
+			<tr>
+				<td></td>
+				<td>Scope</td>
+				<td>Description</td>
+				<td>Sample Value</td>
+			</tr>
+			<tr>
+				<td>%INTDIR%</td>
+				<td>Project</td>
+				<td>The project's intermediate directory, where all the object files are placed.<br />
+					Relative to where RTBuild is being run.</td>
+				<td>build/Windows/x86_64-generic/sampleproject</td>
+			</tr>
+			<tr>
+				<td>%CONFIGURATION%</td>
+				<td>Project</td>
+				<td>The name of the current project configuration.</td>
+				<td>Windows</td>
+			</tr>
+			<tr>
+				<td>%PLATFORM%</td>
+				<td>Project</td>
+				<td>The name of the current project platform.</td>
+				<td>x86-generic</td>
+			</tr>
+			<tr>
+				<td>%PROJECTNAME%</td>
+				<td>Project</td>
+				<td>The name of the current project.</td>
+				<td>sampleproject</td>
+			</tr>
+			<tr>
+				<td>%TARGETEXT%</td>
+				<td>Project</td>
+				<td>The file extension for the output file of the project.<br />
+					Depending on the project type, this is replaced with either
+					%LIBEXT%, %DLLEXT%, %EXEEXT% for static libraries, dynamic libraries,
+					and executables, respectively.</td>
+				<td>.dll</td>
+			</tr>
+			<tr>
+				<td>%LIBEXT%</td>
+				<td>Project</td>
+				<td>The file extension for static libraries on the current platform.</td>
+				<td>.lib</td>
+			</tr>
+			<tr>
+				<td>%DLLEXT%</td>
+				<td>Project</td>
+				<td>The file extension for dynamic libraries on the current platform.</td>
+				<td>.dll</td>
+			</tr>
+			<tr>
+				<td>%EXEEXT%</td>
+				<td>Project</td>
+				<td>The file extension for executables on the current platform.</td>
+				<td>.exe</td>
+			</tr>
+			<tr>
+				<td>%OBJEXT%</td>
+				<td>Project</td>
+				<td>The file extension for object tiles on the current platform.</td>
+				<td>.obj</td>
+			</tr>		
+			<tr>
+				<td>%PROJDIR%</td>
+				<td>Project</td>
+				<td>The Project's directory relative to the root.</td>
+				<td>src/sampleproject</td>
+			</tr>
+			<tr>
+				<td>%INTDIR%</td>
+				<td>File</td>
+				<td>The project's intermediate directory, where all the object files are placed.<br />
+					Relative to the project directory. This overrides the Project-scoped variable of the same name.</td>
+				<td>../../build/Windows/x86_64-generic/sampleproject</td>
+			</tr>
+
+			<tr>
+				<td>%IN%</td>
+				<td>File</td>
+				<td>Used for Custom Build Tools, this is the value of the &quot;name&quot; field in
+					a file entry.<br />
+					Relative to project root.
+				</td>
+				<td>
+					arch/x86/x86.asm
+				</td>
+			</tr>
+			<tr>
+				<td>%OUT%</td>
+				<td>File</td>
+				<td>Used for Custom Build Tools, this is the expanded value of the &quot;output&quot; field in
+					a file entry.<br />
+					Relative to project Root
+				</td>
+				<td>%INTDIR%/%IN%%OBJEXT% = <br />
+					build/Windows/x86_64-generic/sampleproject/arch/x86/x86.asm.obj</td>
+			</tr>
+		</table>
+		<h3>Property Lists</h3>
+
+		<div style="display:inline-block">
+			<table>
+				<thead><tr><td colspan="2"><strong>Legend</strong></td></tr></thead>
+				<tr><td><div class="supported-yes"></div></td><td>= Supported</td></tr>
+				<tr><td><div class="supported-no"></div></td><td>= Unsupported</td></tr>
+				<tr><td><div class="supported-inprogress"></div></td><td>= In Progress</td></tr>
+			</table>
+		</div>
+		<div>NOTE: All values are represented as strings.</div>
+		<table class="proplist" border="1">
+			<!-- CPPPROPS -->
+			<tr class="header">
+				<td colspan="7">CPPPROPS - C/C++/ObjC Properties</td>
+			</tr>
+			<tr>
+				<td>Property</td>
+				<td>Description</td>
+				<td>Type</td>
+				<td>Values</td>
+				<td>Default</td>
+				<td>Makefile</td>
+				<td>MSVC</td>
+			</tr>
+			<tr class="entry">
+				<td>
+					<table>
+						<tr class="prop"><td colspan="2">optimise</td></tr>
+						<tr class="propnote"><td>CL:</td><td>/O</td></tr>
+						<tr class="propnote"><td>GCC:</td><td>-O</td></tr>
+					</table>
+				</td>
+				<td>Specify the optimisation level.</td>
+				<td>Enum</td>
+				<td>
+					<table>
+						<tr>
+							<td>0</td>
+							<td>
+								<div>Disable optimisation.</div>
+								<div class="propnote">CL: <span>/0d</span></div>
+								<div class="propnote">GCC: <span>-O0</span></div>
+							</td>
+						</tr>
+						<tr>
+							<td>1</td>
+							<td>
+								<div>Some optimisation.</div>
+								<div class="propnote">CL: <span>/0t</span></div>
+								<div class="propnote">GCC: <span>-O1</span></div>
+							</td>
+						</tr>
+						<tr>
+							<td>2</td>
+							<td>
+								<div>More optimisation.</div>
+								<div class="propnote">CL: <span>/02</span></div>
+								<div class="propnote">GCC: <span>-O2</span></div>
+							</td>
+						</tr>
+						<tr>
+							<td>3</td>
+							<td>
+								<div>Full optimisation.</div>
+								<div class="propnote">CL: <span>/0x</span></div>
+								<div class="propnote">GCC: <span>-O3</span></div>
+							</td>
+						</tr>
+						<tr>
+							<td>s</td>
+							<td>
+								<div>Optimise for size.</div>
+								<div class="propnote">CL: <span>/0st1</span></div>
+								<div class="propnote">GCC: <span>-Os</span></div>
+							</td>
+						</tr>
+					</table>
+				</td>
+				<td>2</td>
+				<td class="supported-yes"></td>
+				<td class="supported-yes"></td>
+			</tr>
+			<tr class="entry">
+				<td class="prop">
+					<table>
+						<tr class="prop"><td colspan="2">lto</td></tr>
+					</table>
+				</td>
+				<td>Enable/Disable Link-Time Optimisation (LTO)</td>
+				<td>Boolean</td>
+				<td>
+					<table>
+						<tr>
+							<td>0</td>
+							<td>
+								<div>Disable LTO.</div>
+								<div class="propnote">CL: <span></span></div>
+								<div class="propnote">GCC: <span>-flto</span></div>
+							</td>
+						</tr>
+						<tr>
+							<td>1</td>
+							<td>
+								<div>Enable LTO.</div>
+								<div class="propnote">CL: <span>/GL</span></div>
+								<div class="propnote">GCC: <span>-fno-lto</span></div>
+							</td>
+						</tr>
+					</table>
+				</td>
+				<td>true</td>
+				<td class="supported-yes"></td>
+				<td class="supported-yes"></td>			
+			</tr>
+			<tr class="entry">
+				<td>
+					<table>
+						<tr class="prop"><td colspan="2">werror</td></tr>
+						<tr class="propnote"><td>CL:</td><td>/WX</td></tr>
+						<tr class="propnote"><td>GCC:</td><td>-Werror</td></tr>
+					</table>
+				</td>
+				<td>Treat all warnings as errors.</td>
+				<td>Boolean</td>
+				<td>
+					<table>
+						<tr><td>false</td></tr>
+						<tr><td>true</td></tr>
+					</table>
+				</td>
+				<td>false</td>
+				<td class="supported-yes"></td>
+				<td class="supported-yes"></td>			
+			</tr>
+			<tr class="entry">
+				<td>
+					<table>
+						<tr class="prop"><td colspan="2">wall</td></tr>
+						<tr class="propnote"><td>CL:</td><td>/Wall</td></tr>
+						<tr class="propnote"><td>GCC:</td><td>-Wall -Wextra</td></tr>
+					</table>
+				</td>
+				<td>Show all warnings.</td>
+				<td>Boolean</td>
+				<td>
+					<table>
+						<tr><td>false</td></tr>
+						<tr><td>true</td></tr>
+					</table>
+				</td>
+				<td>false</td>
+				<td class="supported-yes"></td>
+				<td class="supported-yes"></td>			
+			</tr>
+			<!--
+			<tr class="entry">
+				<td>
+					<table>
+						<tr class="prop"><td colspan="2">wrn-unused-parameter</td></tr>
+					</table>
+				</td>
+				<td>Enable/Disable Warnings for Unused Variables</td>
+				<td>Boolean</td>
+				<td>
+					<table>
+						<tr>
+							<td>false</td>
+							<td>
+								<div class="propnote">CL: <span>/wd4100</span></div>
+								<div class="propnote">GCC: <span>-Wno-unused-parameter</span></div>
+							</td>
+						</tr>
+						<tr>
+							<td>true</td>
+							<td>
+								<div class="propnote">CL: <span>/w14100</span></div>
+								<div class="propnote">GCC: <span>-W-unused-parameter</span></div>
+							</td>
+						</tr>
+						<tr>
+					</table>
+				</td>
+				<td></td>
+			</tr>
+			-->
+			<!-- CPROPS -->
+			<tr class="header">
+				<td colspan="7">CPROPS - C specific Properties</td>
+			</tr>
+
+			<tr>
+				<td>Property</td>
+				<td>Description</td>
+				<td>Type</td>
+				<td>Values</td>
+				<td>Default</td>
+				<td>Makefile</td>
+				<td>MSVC</td>
+			</tr>
+			<tr class="entry">
+				<td>standard</td>
+				<td>Specify the C Standard used by the compiler.</td>
+				<td>Enum</td>
+				<td>
+					<table>
+						<tr><td>C89</td><td>Use the C89 standard.</td></tr>
+						<tr><td>C99</td><td>Use the C99 standard.</td></tr>
+						<tr><td>C11</td><td>Use the C11 standard.<br /><i>May not be supported by all compilers.</i></td></tr>
+					</table>
+				</td>
+				<td>C99</td>
+				<td class="supported-yes"></td>
+				<td class="supported-no"></td>			
+			</tr>
+			<!-- CXXPROPS -->
+			<tr class="header">
+				<td colspan="7">CXXPROPS - C++ specific Properties</td>
+			</tr>
+
+			<tr>
+				<td>Property</td>
+				<td>Description</td>
+				<td>Type</td>
+				<td>Values</td>
+				<td>Default</td>
+				<td>Makefile</td>
+				<td>MSVC</td>
+			</tr>
+			<tr class="entry">
+				<td>standard</td>
+				<td>Specify the C++ Standard used by the compiler.</td>
+				<td>Enum</td>
+				<td>
+					<table>
+						<tr><td>C++98</td><td>Use the C++98 standard.</td></tr>
+						<tr><td>C++03</td><td>Use the C++03 standard.</td></tr>
+						<tr><td>C++11</td><td>Use the C++11 standard.<br /><i>May not be supported by all compilers.</i></td></tr>
+						<tr><td>C++14</td><td>Use the C++14 standard.<br /><i>May not be supported by all compilers.</i></td></tr>
+					</table>
+				</td>
+				<td>C++03</td>
+				<td class="supported-yes"></td>
+				<td class="supported-no"></td>			
+			</tr>
+			<tr class="entry">
+				<td>enable-rtti</td>
+				<td>Enable Run-Time Type Information.</td>
+				<td>Boolean</td>
+				<td>
+					<table>
+						<tr><td>false</td></tr>
+						<tr><td>true</td></tr>
+					</table>
+				</td>
+				<td>true</td>
+				<td class="supported-inprogress"></td>
+				<td class="supported-inprogress"></td>
+			</tr>
+			<!-- OBJCPROPS -->
+		</table>
+		
+		<div class="footnote">
+			<strong>Notes:</strong><br/>
+			<ul>
+				<li>MSVC will use whatever standard it wants to, there is no setting for this.</li>
+				<li><strong>TODO: </strong>Make RTBuild propagate, but ignore and unknown properties, so new custom ones can be added easier.</li>
+			</ul>
+        </div>		
+		<!-- Linking shit -->
+		<h3>Linking</h3>
+
+		<div class="footnote">
+			<strong>Note:</strong>
+			Because M$ Visual Studio doesn't support conditional same-solution project links, linking will be attempted with
+			project dependencies marked as &quot;local&quot; for all platforms and configurations.
+        </div>
+	</body>
+</html>
