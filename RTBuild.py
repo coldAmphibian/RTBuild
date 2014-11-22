@@ -26,10 +26,11 @@ class RTBuild():
 
         # Define all the CPP properties
         cppProps = {}
-        cppProps["optimise"]        = {"values": ['0', '1', '2', '3', 's'],     "default": '2'}
-        cppProps["werror"]          = {"values": ["true", "false"],             "default": "false"}
-        cppProps["wall"]            = {"values": ["true", "false"],             "default": "false"}
-        cppProps["lto"]             = {"values": ["true", "false"],             "default": "false"}
+        cppProps["optimise"]                = {"values": ['0', '1', '2', '3', 's'],     "default": '2'}
+        cppProps["werror"]                  = {"values": ["true", "false"],             "default": "false"}
+        cppProps["wall"]                    = {"values": ["true", "false"],             "default": "false"}
+        cppProps["lto"]                     = {"values": ["true", "false"],             "default": "false"}
+        cppProps["wrn-unused-parameter"]    = {"values": ["true", "false"],             "default": "true"}
         defProps["CPPPROPS"]        = cppProps
 
         # Define all the C properties

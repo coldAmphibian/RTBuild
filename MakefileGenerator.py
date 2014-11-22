@@ -33,6 +33,12 @@ class MakefileGenerator(BuildGenerator):
         if "werror" in props and props["werror"] == "true":
             out += ["-Werror"]
 
+        if "wrn-unused-parameter" in props:
+            if props["wrn-unused-parameter"] == "true":
+                out += ["-W-unused-parameter"]
+            else:
+                out += ["-Wno-unused-parameter"]
+
         # These just happen to correspond
         if "optimise" in props:
             out += ["-O{0}".format(props["optimise"])]
