@@ -3,5 +3,14 @@
 *.swp
 *~
 
-*.pyc
+bin/
+build/
+
+# Merge conflicts
 *.orig
+
+.pyc
+.vcxproj
+.sln
+
+Makefile
