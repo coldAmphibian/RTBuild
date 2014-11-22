@@ -126,11 +126,12 @@ class RTBuild():
         return globProps
 
 
-    def _ss_global_apply(self, string):
+    @staticmethod
+    def _ss_global_apply(string):
         # There's no global substitutions as of yet
         return string
 
-    def _ss_project_apply(self, string, project, configuration, platform):
+    def _ss_project_apply(self, string, project, configuration, platform, exclude=[]):
         """
         Apply project-level string substitutions.
         :param string: The string to process.
@@ -140,22 +141,39 @@ class RTBuild():
         string = self._ss_global_apply(string)
 
         targetInfo = self.m_BuildTargets[configuration][platform]
-        string = string.replace("%INTDIR%", project["intdir"])
-        string = string.replace("%CONFIGURATION%", configuration)
-        string = string.replace("%PLATFORM%", platform)
-        string = string.replace("%PROJECTNAME%", project["name"])
 
-        if project["type"] == "static":
-            string = string.replace("%TARGETEXT%", "%LIBEXT%")
-        elif project["type"] == "module":
-            string = string.replace("%TARGETEXT%", "%DLLEXT%")
-        elif project["type"] == "executable":
-            string = string.replace("%TARGETEXT%", "%EXEEXT%")
+        if "%INTDIR%" not in exclude:
+            string = string.replace("%INTDIR%", project["intdir"])
 
-        string = string.replace("%LIBEXT%", targetInfo["LIBEXT"])
-        string = string.replace("%DLLEXT%", targetInfo["DLLEXT"])
-        string = string.replace("%EXEEXT%", targetInfo["EXEEXT"])
-        string = string.replace("%OBJEXT%", targetInfo["OBJEXT"])
+        if "%CONFIGURATION%" not in exclude:
+            string = string.replace("%CONFIGURATION%", configuration)
+
+        if "%PLATFORM%" not in exclude:
+            string = string.replace("%PLATFORM%", platform)
+
+        if "%PROJECTNAME%" not in exclude:
+            string = string.replace("%PROJECTNAME%", project["name"])
+
+
+        if "%TARGETEXT%" not in exclude:
+            if project["type"] == "static":
+                string = string.replace("%TARGETEXT%", "%LIBEXT%")
+            elif project["type"] == "module":
+                string = string.replace("%TARGETEXT%", "%DLLEXT%")
+            elif project["type"] == "executable":
+                string = string.replace("%TARGETEXT%", "%EXEEXT%")
+
+        if "%LIBEXT%" not in exclude:
+            string = string.replace("%LIBEXT%", targetInfo["LIBEXT"])
+
+        if "%DLLEXT%" not in exclude:
+            string = string.replace("%DLLEXT%", targetInfo["DLLEXT"])
+
+        if "%EXEEXT%" not in exclude:
+            string = string.replace("%EXEEXT%", targetInfo["EXEEXT"])
+
+        if "%OBJECT%" not in exclude:
+            string = string.replace("%OBJEXT%", targetInfo["OBJEXT"])
 
         return string
 
@@ -170,20 +188,28 @@ class RTBuild():
         :return:
         """
 
+        string = self._ss_project_apply(string, project, configuration, platform, ["%INTDIR%"] + exclude)
+
+        # %INTDIR% relative to the solution root
+        intdir = self._ss_project_apply("%INTDIR%", project, configuration, platform)
+
         # %INTDIR% is relative to the solution root, so make it relative to the project root
-        string = string.replace("%INTDIR%", os.path.join(os.path.relpath(".", fEntry["dir"]), "%INTDIR%"))
-        string = self._ss_project_apply(string, project, configuration, platform)
+        intdir_local = os.path.relpath(intdir, project["projdir"])
+
+        #print "Operating on {0}. %INTDIR% = {1}, localintdir = {2}".format(string, intdir, intdir_local)
+        if "%INTDIR%" not in exclude:
+            string = string.replace("%INTDIR%", intdir_local)
 
         targetInfo = self.m_BuildTargets[configuration][platform]
 
 
+        # Remember %IN% should be relative to the project directory
         if "%IN%" not in exclude:
-            string = string.replace("%IN%", os.path.join(fEntry["dir"], fEntry["name"]))
+            string = string.replace("%IN%", fEntry["input"])
 
         if "%OUT%" not in exclude:
-            #print fEntry
-            #exit(1)
             string = string.replace("%OUT%", fEntry["output"])
+
         return string
 
     def _traverse_folder(self, folder, top=None):
@@ -260,7 +286,7 @@ class RTBuild():
                     procProj = procPlat[project] = {"fullname": "{0}-{1}-{2}".format(platform, config, project)}
 
                     # These have to be done before the string substitutions
-                    procProj["intdir"] = os.path.join("build", "{0}-{1}-{2}".format(platform, config, project))
+                    procProj["intdir"] = os.path.join("build", "{0}-{1}".format(platform, config), project)
                     procProj["name"] = project
                     procProj["projdir"] = rawProject["projdir"]
                     procProj["CDEFS"] = rawProject["CDEFS"]
@@ -307,11 +333,12 @@ class RTBuild():
                     # ...and for each file...
                     for f in rawProject["files"]:
                         if fnmatch.fnmatch(config, f["configuration"]) and fnmatch.fnmatch(platform, f["platform"]):
-                            fEntry = {"fullpath": os.path.join(procProj["projdir"], f["name"]),
+                            fEntry = {"fullpath": os.path.relpath(os.path.join(procProj["projdir"], f["name"])),
                                       "type":f["type"][:]}
                             fileDir, fileName = os.path.split(f["name"])
                             fEntry["dir"] = fileDir
                             fEntry["name"] = fileName[:]
+                            fEntry["input"] = f["name"]
 
                             # Validate the per-file properties
                             for key in f.get("PROPS", {}):
@@ -355,10 +382,11 @@ class RTBuild():
                                 fEntry["objdir"] = os.path.join(procProj["intdir"], rawProject["projdir"], fileDir)
 
                             fEntry["link"] = {True:"true", False:"false"}[linkFlag]
+                            #print fEntry
                             procProj["files"].append(fEntry)
 
     def generate(self, generator):
-        if (isinstance(type(generator), BuildGenerator)):
+        if isinstance(type(generator), BuildGenerator):
             raise Exception("Invalid generator")
 
         generator.generate(copy.deepcopy(self.m_ProcessedProjects), copy.deepcopy(self.m_BuildTargets),

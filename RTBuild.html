@@ -507,5 +507,41 @@
 			Because M$ Visual Studio doesn't support conditional same-solution project links, linking will be attempted with
 			project dependencies marked as &quot;local&quot; for all platforms and configurations.
         </div>
+		
+		<h3>Internal Workings (Ignore these)</h3>
+		fEntry properties:
+		<table border="1">
+			<thead>
+				<tr>
+					<td>Property</td>
+					<td>Notes</td>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td>fullpath</td>
+					<td>The full path to the file, relative to the solution root.</td>
+				</tr>
+				<tr>
+					<td>type</td>
+					<td>The type of the file. May be one of:<pre>["c", "cpp", "custom:*"]</pre></td>
+				</tr>
+				<tr>
+					<td>output</td>
+					<td>
+						The full path of the output file, relative to the project root.<br>
+						Directly substituted for %OUT%
+					</td>
+				</tr>
+				<tr>
+					<td>input</td>
+					<td>
+						The input file, relative to the project root. <br>
+						Directly substituted for %IN%
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		
 	</body>
 </html>
