@@ -259,7 +259,7 @@ class MakefileGenerator(BuildGenerator):
             defFlags = ["-D{0}".format(d) for d in fEntry["defines"]]
             command += defFlags + buildFlags
 
-            if project["type"] == "module":
+            if project["type"] == "module" and tools["PICFLAG"] == "true":
                 command += ["-fPIC"]
 
             depCommand += ["-MM"] + defFlags + buildFlags

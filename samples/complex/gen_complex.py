@@ -34,6 +34,7 @@ gcc_tools = \
                         "AR": "x86_64-linux-gnu-gcc-ar",
                         "STRIP": "strip",
                         "LDFLAGS": ["-m64"],
+                        "PICFLAG": "true",
                     },
                 "x86-generic":
                     {
@@ -45,6 +46,7 @@ gcc_tools = \
                         "AR": "x86_64-linux-gnu-gcc-ar",
                         "STRIP": "strip",
                         "LDFLAGS": ["-m32"],
+                        "PICFLAG": "true",
                     },
             },
         "Windows":
@@ -59,6 +61,7 @@ gcc_tools = \
                         "AR": "x86_64-w64-mingw32-ar",
                         "STRIP": "x86_64-w64-mingw32-strip",
                         "LDFLAGS": ["-m64"],
+                        "PICFLAG": "false",
                     },
                 "x86-generic":
                     {
@@ -70,6 +73,7 @@ gcc_tools = \
                         "AR": "i686-w64-mingw32-ar",
                         "STRIP": "i686-w64-mingw32-strip",
                         "LDFLAGS": ["-m32"],
+                        "PICFLAG": "false",
                     },
             }
     }
