@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 	<head>
@@ -76,17 +76,12 @@
 			<div>CL:  <span class="flagit">/GF</span></div>
 			<div>GCC: <span class="flagit">-fvisibility=hidden -mno-ms-bitfields</span></div>
 		</div>
-		<h3>Fuckit Notes</h3>
-		There are three levels of properties, Global, Project, and File.<br/>
-		Global properties apply to EVERYTHING.<br/>
-		Project properties apply to everything in that project.<br/>
-		File properties only apply to that specific file.<br/>
 
-		Properties will overwrite one another in the following order:<br/>
-		File > Project > Global<br/>
-		So any global properties are overwritten by project properties, which are overwritten by file properties.
-
-		<!-- ASM Files -->
+		<h3>Library Dependencies</h3>
+		On systems where library dependencies are only checked upon compilation of the
+		final executable (i.e. Linux), any (dynamic) dependencies in linked projects are automatically
+		linked into said executable.
+		
 		<h3>Custom Tools</h3>
 		<p>
 			Although both GCC and Visual Studio have inbuilt assemblers, <i>AS</i>, and <i>ML</i> respectively, support
@@ -507,6 +502,16 @@
 			Because M$ Visual Studio doesn't support conditional same-solution project links, linking will be attempted with
 			project dependencies marked as &quot;local&quot; for all platforms and configurations.
         </div>
+		
+		<h3>Rough Notes</h3>
+		There are three levels of properties, Global, Project, and File.<br/>
+		Global properties apply to EVERYTHING.<br/>
+		Project properties apply to everything in that project.<br/>
+		File properties only apply to that specific file.<br/>
+
+		Properties will overwrite one another in the following order:<br/>
+		File > Project > Global<br/>
+		So any global properties are overwritten by project properties, which are overwritten by file properties.
 		
 		<h3>Internal Workings (Ignore these)</h3>
 		fEntry properties:
