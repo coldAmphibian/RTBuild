@@ -11,8 +11,8 @@ doc/
 # Merge conflicts
 *.orig
 
-.pyc
-.vcxproj
-.sln
+*.pyc
+*.vcxproj
+*.sln
 
 Makefile

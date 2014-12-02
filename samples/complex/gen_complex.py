@@ -202,7 +202,7 @@ elif RELEASE:
     cppProps["lto"] = "true"
     cppProps["werror"] = "true"
 
-build = RTBuild(".", targets,
+build = RTBuild(".", targets, [],
                 CPPPROPS=cppProps,
                 CPROPS={"standard": "C99"},
                 CXXPROPS={"standard": "C++11"},

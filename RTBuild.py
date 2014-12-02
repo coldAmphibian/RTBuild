@@ -4,7 +4,12 @@ import xml.etree.ElementTree as XMLTree
 
 
 class RTBuild():
-    def __init__(self, folder, buildTargets, **properties):
+    """Initialise a new instance of RTBuild
+    :param folder: The starting folder, relative to the execution directory.
+    :param buildTargets: A list of all the supported targets. See examples for more information.
+    :param exclDirs: A list of directories that are excluded from search, relative to the execution directory.
+    """
+    def __init__(self, folder, buildTargets, exclDirs = [], **properties):
 
         self.m_RawProjects = {}
         self.m_ProcessedProjects = {}
@@ -14,7 +19,7 @@ class RTBuild():
         self.m_GlobalProps = self._calculate_global_properties(**properties)
 
 
-        self._traverse_folder(folder)
+        self._traverse_folder(folder, [os.path.realpath(p) for p in exclDirs])
         self._preprocess_projects()
 
     def _define_default_properties(self):
@@ -126,7 +131,6 @@ class RTBuild():
 
         return globProps
 
-
     @staticmethod
     def _ss_global_apply(string):
         # There's no global substitutions as of yet
@@ -213,15 +217,23 @@ class RTBuild():
 
         return string
 
-    def _traverse_folder(self, folder, top=None):
+    def _traverse_folder(self, folder, excl, top=None):
         """
         Traverse a folder structure, importing any buildfile.py files
         along the way.
 
         :param folder: The folder to search.
+        :param excl: A list of directories to exclude
         :param top: The top directory, used for os.path.relpath()
         :raise Exception: If an error occurs.
         """
+
+        def __isExcluded(child):
+            print "Child = {0}".format(os.path.realpath(child))
+            for i in excl:
+                if os.path.realpath(child).startswith(i):
+                    return True
+            return False
 
         if top == None:
             oldFlag = True
@@ -234,7 +246,8 @@ class RTBuild():
 
         for f in fileList:
             if os.path.isdir(f):
-                self._traverse_folder(f, top)
+                if not __isExcluded(f):
+                    self._traverse_folder(f, excl, top)
             elif os.path.isfile(f) and f == "buildfile.py":
                 try:
                     path = os.path.dirname(os.path.relpath(f, top))
