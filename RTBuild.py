@@ -229,7 +229,6 @@ class RTBuild():
         """
 
         def __isExcluded(child):
-            print "Child = {0}".format(os.path.realpath(child))
             for i in excl:
                 if os.path.realpath(child).startswith(i):
                     return True
