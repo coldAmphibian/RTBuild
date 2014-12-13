@@ -1,4 +1,15 @@
 #!/usr/bin/python
+
+"""
+ " Makefile Generator for RTBuild
+ "
+ " Copyright (C) 2014, Zane van Iperen
+ " Authors: Zane van Iperen <zane.vaniperen@uqconnect.edu.au>
+ "
+ " This program is free software; you can redistribute it and/or modify
+ " it under the terms of the GNU General Public License version 2 as
+ " published by the Free Software Foundation.
+"""
 import sys, os, fnmatch, copy, subprocess, uuid
 import xml.etree.ElementTree as XMLTree
 
@@ -35,7 +46,7 @@ class MakefileGenerator(BuildGenerator):
 
         if "wrn-unused-parameter" in props:
             if props["wrn-unused-parameter"] == "true":
-                out += ["-W-unused-parameter"]
+                out += ["-Wunused-parameter"]
             else:
                 out += ["-Wno-unused-parameter"]
 

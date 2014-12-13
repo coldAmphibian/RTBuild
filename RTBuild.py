@@ -1,4 +1,16 @@
 #!/usr/bin/python
+
+"""
+ " Main RTBuild Program.
+ "
+ " Copyright (C) 2014, Zane van Iperen
+ " Authors: Zane van Iperen <zane.vaniperen@uqconnect.edu.au>
+ "
+ " This program is free software; you can redistribute it and/or modify
+ " it under the terms of the GNU General Public License version 2 as
+ " published by the Free Software Foundation.
+"""
+
 import sys, os, fnmatch, copy, subprocess, uuid
 import xml.etree.ElementTree as XMLTree
 

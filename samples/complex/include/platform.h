@@ -52,6 +52,7 @@
 #endif
 
 #if COMPLEX_PLATFORM == COMPLEX_PLATFORM_WINDOWS
+#	include <windows.h>
 #	if defined(_MSC_VER) /* For CL */
 #		define DLLEXPORT __declspec(dllexport)
 #		define DLLIMPORT __declspec(dllimport)

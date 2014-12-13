@@ -1,4 +1,16 @@
 #!/usr/bin/python
+
+"""
+ " MSBuild Project Generator for RTBuild
+ "
+ " Copyright (C) 2014, Zane van Iperen
+ " Authors: Zane van Iperen <zane.vaniperen@uqconnect.edu.au>
+ "
+ " This program is free software; you can redistribute it and/or modify
+ " it under the terms of the GNU General Public License version 2 as
+ " published by the Free Software Foundation.
+"""
+
 import sys, os, fnmatch, copy, subprocess, uuid
 import xml.etree.ElementTree as XMLTree
 
@@ -164,6 +176,7 @@ class MSVCGenerator(BuildGenerator):
                 tmp = XMLTree.Element("PropertyGroup", Condition="'$(Configuration)|$(Platform)'=='{0}'".format(p["project_target"]), Label="Configuration")
                 root.append(tmp)
 
+                # No unicode 5 u
                 tmp2 = XMLTree.Element("CharacterSet")
                 tmp2.text = "NotSet"
                 tmp.append(tmp2)
@@ -188,12 +201,11 @@ class MSVCGenerator(BuildGenerator):
                 tmp2.text = self.m_Properties["DEBUG"]
                 tmp.append(tmp2)
 
-                genProps = self._generate_thing(props["CPPPROPS"])
+                genProps = self._generate_props(props["CPPPROPS"])
                 for prop in genProps:
                     e = XMLTree.Element(prop)
                     e.text = genProps[prop]
                     tmp.append(e)
-                #[tmp.append(i) for i in self._generate_optimisation(props["CPPPROPS"], None)]
 
                 """
                 <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='x86_64-generic-Windows|x64'">true</TreatWarningAsError>
@@ -312,16 +324,16 @@ class MSVCGenerator(BuildGenerator):
             tmp.append(tmp2)
 
             [tmp.append(i) for i in self._generate_optimisation(vf["PROPS"], condString)]
+            # TODO TODO
 
         root.append(tmp)
 
-    def _generate_thing(self, props):
+    def _generate_props(self, props):
         ret = {}
         if "lto" in props:
             ret["WholeProgramOptimisation"] = props["lto"]
 
         if "optimise" in props:
-
             level = props["optimise"]
             if level == "0":
                 tmp = "Disabled"
@@ -343,27 +355,31 @@ class MSVCGenerator(BuildGenerator):
         if "wall" in props:
             if props["wall"] == "true":
                 ret["WarningLevel"] = "EnableAllWarnings"
+
+        ret["DisableSpecificWarnings"] = ""
+        ret["AdditionalOptions"] = ""
+        if "wrn-unused-parameter" in props:
+            if props["wrn-unused-parameter"] == "true":
+                # FIXME: MSVC has no proper option for this.
+                ret["AdditionalOptions"] += "/w14100 "
+            else:
+                ret["DisableSpecificWarnings"] += "4100;"
+            pass
+
+        ret["DisableSpecificWarnings"] += "%(DisableSpecificWarnings)"
+        ret["AdditionalOptions"] += "%(AdditionalOptions)"
         return ret
 
     def _generate_optimisation(self, props, cond):
 
         ret = []
-        gen = self._generate_thing(props)
+        gen = self._generate_props(props)
         for p in gen:
             e = XMLTree.Element(p, Condition=cond)
             e.text = gen[p]
             ret.append(e)
 
         return ret
-
-    def _decode_c_common_props(self, props, prop):
-        tgt = props[prop]
-
-        if prop == "optimise":
-            if tgt == "0":
-                return "Disabled"
-            elif tgt == "1":
-                pass
 
     def _write_custom_target(self, root, f, vcxProj, rawProjects, platforms, targets):
         inFile = os.path.join(f["dir"], f["name"])
