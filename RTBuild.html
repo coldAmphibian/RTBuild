@@ -4,77 +4,170 @@
 	<head>
 		<meta charset="utf-8" />
 		<title>RTBuild Documentation</title>
-		<style type="text/css">
-			* {
-				font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
-			}
+		<!-- <link rel="stylesheet" type="text/css" href="style.css"> -->
+		<style>
+		* {
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+}
 
-			.proplist {
+body{
+	background: #ffffff; /* Old browsers */
+	background: -moz-linear-gradient(top,  #ffffff 0%, #f7f1ea 40%, #fff2e0 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ffffff), color-stop(40%,#f7f1ea), color-stop(100%,#fff2e0)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top,  #ffffff 0%,#f7f1ea 40%,#fff2e0 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top,  #ffffff 0%,#f7f1ea 40%,#fff2e0 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top,  #ffffff 0%,#f7f1ea 40%,#fff2e0 100%); /* IE10+ */
+	background: linear-gradient(to bottom,  #ffffff 0%,#f7f1ea 40%,#fff2e0 100%); /* W3C */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#fff2e0',GradientType=0 ); /* IE6-9 */
+	background-size: cover;
+	color: #2C2C2E;
+}
 
-			}
+p{
+	font-family: Georgia, serif;
+	color: #2C2C2E;
+}
 
-			.proplist .header {
-				font-size: 12pt;
-				font-weight: bold;
-			}
+pre{
+	white-space:pre-wrap;
+}
 
-			.proplist .entry .prop { }
+table, th, td{
+	border: 1px solid #AAAAAA;
+	border-collapse: collapse;
+}
 
-			.proplist .entry .propnote {
-				font-style: italic;
-				font-size: 0.7em;
-			}
+th, td{
+	padding: 5px 10px 5px 10px;
+}
 
-			.flagit {
-				font-style: italic;
-			}
+h1{
+	color: #000;
+	margin: 10px auto;
+	font-weight: normal;
+	font-size: 3em;
+	text-align: center;
+}
 
-			.footnote {
-				font-style: italic;
-				font-size: 0.7em;
-			}
+h3{
+	color: #000;
+	font-size: 18pt;
+	margin-top: 50px;
+	border-bottom: 1px solid #BFBFC9;
+}
 
-			pre {
-				font-family: Courier;
-			}
+h4{
+	color: #000;
+	font-size: 14pt;
+	margin-bottom: 5px;
+}
 
-			.supported-yes {
-				color: green;
-				text-align: center;
-				font-size: 2em;
-			}
+#entire{
+	background-color: #FAFAFA;
+	padding: 20px;
+	width: 800px;
+	margin: 0 auto;
+}
 
-			.supported-yes:before {
-				content: '\2713'
-			}
+#stringSubTable td{
+	font-size: 0.9em;
+}
 
-			.supported-no {
-				color: red;
-				text-align: center;
-				font-size: 2em;
-			}		
+.proplist {
+}
 
-			.supported-no:before {
-				content: '\2717';
-			}
+.proplist .header {
+	font-size: 12pt;
+	font-weight: bold;
+}
 
-			.supported-inprogress {
-				color: darkgoldenrod;
-				text-align: center;
-				font-size: 2em;
-			}		
+.proplist .entry .prop { }
 
-			.supported-inprogress:before {
-				content: "\2623";	
-			}
+.proplist .entry .propnote {
+	font-style: italic;
+	font-size: 0.7em;
+}
 
+.flagit {
+	font-style: italic;
+}
+
+.footnote {
+	font-style: italic;
+	font-size: 0.7em;
+}
+
+pre {
+	font-family: Courier;
+	font-size: 10pt;
+	background-color: #F5F5F9;
+	padding: 10px;
+}
+
+.supported-yes {
+	color: green;
+	text-align: center;
+	font-size: 2em;
+}
+
+.supported-yes:before {
+	content: '\2713'
+}
+
+.supported-no {
+	color: red;
+	text-align: center;
+	font-size: 2em;
+}		
+
+.supported-no:before {
+	content: '\2717';
+}
+
+.supported-inprogress {
+	color: darkgoldenrod;
+	text-align: center;
+	font-size: 2em;
+}		
+
+.supported-inprogress:before {
+	content: "\2623";	
+}
+
+.desc{
+	font-family: Georgia, serif;
+	padding: 5px 10px 5px 10px;
+	width: 250px;
+}
+
+.sampleVal{
+	width: 235px;
+}
+
+.brightRow{
+	background-color: #FaFaFe;
+}
+.darkRow{
+	background-color: #F5F5F9;
+}
+
+#note{
+	font-size: 1.2em;
+	font-style: italic;
+}
 		</style>
 	</head>
 	<body>
+		<div id="entire">
+		<h1>RTBuild</h1>
 		<div>
 			<h3>Forced Compiler Flags</h3>
-			<div>CL:  <span class="flagit">/GF</span></div>
-			<div>GCC: <span class="flagit">-fvisibility=hidden -mno-ms-bitfields</span></div>
+			<p>
+				CL:  <span class="flagit">/GF</span>
+			</p>
+			<p>
+				GCC: <span class="flagit">-fvisibility=hidden -mno-ms-bitfields</span>
+			</p>
 		</div>
 		<!-- Not yet
 		<h3>Library Dependencies</h3>
@@ -94,154 +187,150 @@
 		<p>
 			For this example, we'll use the <i>yasm</i> assembler on both x86 and x64 platforms on Windows.<br />
 			In the targets definition:
-			<pre>
+			<pre>{
+"Windows":
+    {
+        "x86-generic":
+        {
+            "CUSTOMTOOLS":
             {
-                "Windows":
-                {
-                        "x86-generic":
-                        {
-                            "CUSTOMTOOLS":
-                            {
-                                "yasm": { "EXE": "yasm", "FLAGS": ["-f", "win32", "-o", "%OUT%", "%IN%"] }
-                            }
-                        },
-                        "x86_64-generic":
-                        {
-                            "CUSTOMTOOLS":
-                            {
-                                "yasm": { "EXE": "yasm", "FLAGS": ["-f", "win64", "-o", "%OUT%", "%IN%"] }
-                            }
-                        }
-                }
+                "yasm": { "EXE": "yasm", "FLAGS": ["-f", "win32", "-o", "%OUT%", "%IN%"] }
             }
-			</pre>
-			In <i>buildfile.py</i>:
+        },
+        "x86_64-generic":
+        {
+            "CUSTOMTOOLS":
+            {
+                "yasm": { "EXE": "yasm", "FLAGS": ["-f", "win64", "-o", "%OUT%", "%IN%"] }
+            }
+        }
+    }
+}</pre>
+			<p>In <i>buildfile.py</i>:</p>
 			<pre>
-            {"name":"arch/x86_64/x86_64.asm", "type":"custom:yasm", "configuration":"*", "platform":"x86_64-*",
-             "output":"%INTDIR%/%IN%.%OBJEXT%", "add_output":[], "add_inputs":[], "link":"true"},
+{"name":"arch/x86_64/x86_64.asm", "type":"custom:yasm", "configuration":"*", 
+"platform":"x86_64-*", "output":"%INTDIR%/%IN%.%OBJEXT%", "add_output":[], "add_inputs":[], "link":"true"},
 			</pre>
-			Result:
+			<p>Result:</p>
 		</p>
 
 		<h3>String Substitutions</h3>
-		<table border="1">
-			<tr>
-				<td></td>
-				<td>Scope</td>
-				<td>Description</td>
-				<td>Sample Value</td>
+		<table id="stringSubTable">
+			<tr class="brightRow">
+				<th>Subsitution</th>
+				<th>Scope</th>
+				<th>Description</th>
+				<th>Sample Value</th>
 			</tr>
-			<tr>
+			<tr class="darkRow">
 				<td>%INTDIR%</td>
 				<td>Project</td>
-				<td>The project's intermediate directory, where all the object files are placed.<br />
-					Relative to where RTBuild is being run.</td>
-				<td>build/Windows/x86_64-generic/sampleproject</td>
+				<td><div class="desc">The project's intermediate directory, where all the object files are placed.<br />
+					Relative to where RTBuild is being run.</div></td>
+				<td><div class="sampleVal">build/Windows/x86_64-generic/sampleproject</div></td>
 			</tr>
-			<tr>
+			<tr class="brightRow">
 				<td>%CONFIGURATION%</td>
 				<td>Project</td>
-				<td>The name of the current project configuration.</td>
-				<td>Windows</td>
+				<td><div class="desc">The name of the current project configuration.</div></td>
+				<td><div class="sampleVal">Windows</div></td>
 			</tr>
-			<tr>
+			<tr class="darkRow">
 				<td>%PLATFORM%</td>
 				<td>Project</td>
-				<td>The name of the current project platform.</td>
-				<td>x86-generic</td>
+				<td><div class="desc">The name of the current project platform.</div></td>
+				<td><div class="sampleVal">x86->generic</div></td>
 			</tr>
-			<tr>
+			<tr class="brightRow">
 				<td>%PROJECTNAME%</td>
 				<td>Project</td>
-				<td>The name of the current project.</td>
-				<td>sampleproject</td>
+				<td><div class="desc">The name of the current project.</div></td>
+				<td><div class="sampleVal">sampleproject</div></td>
 			</tr>
-			<tr>
+			<tr class="darkRow">
 				<td>%TARGETEXT%</td>
 				<td>Project</td>
-				<td>The file extension for the output file of the project.<br />
+				<td><div class="desc">The file extension for the output file of the project.<br />
 					Depending on the project type, this is replaced with either
 					%LIBEXT%, %DLLEXT%, %EXEEXT% for static libraries, dynamic libraries,
-					and executables, respectively.</td>
-				<td>.dll</td>
+					and executables, respectively.</div></td>
+				<td><div class="sampleVal">.dll</div></td>
 			</tr>
-			<tr>
+			<tr class="brightRow">
 				<td>%LIBEXT%</td>
 				<td>Project</td>
-				<td>The file extension for static libraries on the current platform.</td>
-				<td>.lib</td>
+				<td><div class="desc">The file extension for static libraries on the current platform.</div></td>
+				<td><div class="sampleVal">.lib</div></td>
 			</tr>
-			<tr>
+			<tr class="darkRow">
 				<td>%DLLEXT%</td>
 				<td>Project</td>
-				<td>The file extension for dynamic libraries on the current platform.</td>
-				<td>.dll</td>
+				<td><div class="desc">The file extension for dynamic libraries on the current platform.</div></td>
+				<td><div class="sampleVal">.dll</div></td>
 			</tr>
-			<tr>
+			<tr class="brightRow">
 				<td>%EXEEXT%</td>
 				<td>Project</td>
-				<td>The file extension for executables on the current platform.</td>
-				<td>.exe</td>
+				<td><div class="desc">The file extension for executables on the current platform.</div></td>
+				<td><div class="sampleVal">.exe</div></td>
 			</tr>
-			<tr>
+			<tr class="darkRow">
 				<td>%OBJEXT%</td>
 				<td>Project</td>
-				<td>The file extension for object tiles on the current platform.</td>
-				<td>.obj</td>
+				<td><div class="desc">The file extension for object tiles on the current platform.</div></td>
+				<td><div class="sampleVal">.obj</div></td>
 			</tr>		
-			<tr>
+			<tr class="brightRow">
 				<td>%PROJDIR%</td>
 				<td>Project</td>
-				<td>The Project's directory relative to the root.</td>
-				<td>src/sampleproject</td>
+				<td><div class="desc">The Project's directory relative to the root.</div></td>
+				<td><div class="sampleVal">src/sampleproject</div></td>
 			</tr>
-			<tr>
+			<tr class="darkRow">
 				<td>%INTDIR%</td>
 				<td>File</td>
-				<td>The project's intermediate directory, where all the object files are placed.<br />
+				<td><div class="desc">The project's intermediate directory, where all the object files are placed.<br />
 					Relative to the project directory. This overrides the Project-scoped variable of the same name.</td>
-				<td>../../build/Windows/x86_64-generic/sampleproject</td>
+				<td><div class="sampleVal">../../build/Windows/x86_64-generic/sampleproject</div></td>
 			</tr>
 
-			<tr>
+			<tr class="brightRow">
 				<td>%IN%</td>
 				<td>File</td>
-				<td>Used for Custom Build Tools, this is the value of the &quot;name&quot; field in
+				<td><div class="desc">Used for Custom Build Tools, this is the value of the &quot;name&quot; field in
 					a file entry.<br />
 					Relative to project root.
-				</td>
-				<td>
-					arch/x86/x86.asm
-				</td>
+				</div></td>
+				<td><div class="sampleVal">arch/x86/x86.asm</div></td>
 			</tr>
-			<tr>
+			<tr class="darkRow">
 				<td>%OUT%</td>
 				<td>File</td>
-				<td>Used for Custom Build Tools, this is the expanded value of the &quot;output&quot; field in
+				<td><div class="desc">Used for Custom Build Tools, this is the expanded value of the &quot;output&quot; field in
 					a file entry.<br />
 					Relative to project Root
-				</td>
-				<td>%INTDIR%/%IN%%OBJEXT% = <br />
-					build/Windows/x86_64-generic/sampleproject/arch/x86/x86.asm.obj</td>
+				</div></td>
+				<td><div class="sampleVal">%INTDIR%/%IN%%OBJEXT% = <br />
+					build/Windows/x86_64-generic/sampleproject/arch/<br>x86/x86.asm.obj</div></td>
 			</tr>
 		</table>
 		<h3>Property Lists</h3>
 
 		<div style="display:inline-block">
+			<h4>Legend:</h4>
 			<table>
-				<thead><tr><td colspan="2"><strong>Legend</strong></td></tr></thead>
-				<tr><td><div class="supported-yes"></div></td><td>= Supported</td></tr>
-				<tr><td><div class="supported-no"></div></td><td>= Unsupported</td></tr>
-				<tr><td><div class="supported-inprogress"></div></td><td>= In Progress</td></tr>
+				<tr class="darkRow"><td><div class="supported-yes"></div></td><td>= Supported</td></tr>
+				<tr class="brightRow"><td><div class="supported-no"></div></td><td>= Unsupported</td></tr>
+				<tr class="darkRow"><td><div class="supported-inprogress"></div></td><td>= In Progress</td></tr>
 			</table>
 		</div>
-		<div>NOTE: All values are represented as strings.</div>
+		<div><p id="note">NOTE: All values are represented as strings.</p></div>
 		<table class="proplist" border="1">
 			<!-- CPPPROPS -->
 			<tr class="header">
-				<td colspan="7">CPPPROPS - C/C++/ObjC Properties</td>
+				<th>CPPPROPS - C/C++/ObjC Properties</th>
 			</tr>
-			<tr>
+			<tr class="brightRow">
 				<td>Property</td>
 				<td>Description</td>
 				<td>Type</td>
@@ -250,7 +339,7 @@
 				<td>Makefile</td>
 				<td>MSVC</td>
 			</tr>
-			<tr class="entry">
+			<tr class="entry darkRow">
 				<td>
 					<table>
 						<tr class="prop"><td colspan="2">optimise</td></tr>
@@ -308,7 +397,7 @@
 				<td class="supported-yes"></td>
 				<td class="supported-yes"></td>
 			</tr>
-			<tr class="entry">
+			<tr class="entry brightRow">
 				<td class="prop">
 					<table>
 						<tr class="prop"><td colspan="2">lto</td></tr>
@@ -340,7 +429,7 @@
 				<td class="supported-yes"></td>
 				<td class="supported-yes"></td>			
 			</tr>
-			<tr class="entry">
+			<tr class="entry darkRow">
 				<td>
 					<table>
 						<tr class="prop"><td colspan="2">werror</td></tr>
@@ -360,7 +449,7 @@
 				<td class="supported-yes"></td>
 				<td class="supported-yes"></td>			
 			</tr>
-			<tr class="entry">
+			<tr class="entry brightRow">
 				<td>
 					<table>
 						<tr class="prop"><td colspan="2">wall</td></tr>
@@ -380,7 +469,7 @@
 				<td class="supported-yes"></td>
 				<td class="supported-yes"></td>			
 			</tr>
-			<tr class="entry">
+			<tr class="entry darkRow">
 				<td>
 					<table>
 						<tr class="prop"><td colspan="2">wrn-unused-parameter</td></tr>
@@ -413,10 +502,10 @@
 			</tr>
 			<!-- CPROPS -->
 			<tr class="header">
-				<td colspan="7">CPROPS - C specific Properties</td>
+				<td>CPROPS - C specific Properties</td>
 			</tr>
 
-			<tr>
+			<tr class="brightRow">
 				<td>Property</td>
 				<td>Description</td>
 				<td>Type</td>
@@ -425,7 +514,7 @@
 				<td>Makefile</td>
 				<td>MSVC</td>
 			</tr>
-			<tr class="entry">
+			<tr class="entry darkRow">
 				<td>standard</td>
 				<td>Specify the C Standard used by the compiler.</td>
 				<td>Enum</td>
@@ -442,10 +531,10 @@
 			</tr>
 			<!-- CXXPROPS -->
 			<tr class="header">
-				<td colspan="7">CXXPROPS - C++ specific Properties</td>
+				<td>CXXPROPS - C++ specific Properties</td>
 			</tr>
 
-			<tr>
+			<tr class="brightRow">
 				<td>Property</td>
 				<td>Description</td>
 				<td>Type</td>
@@ -454,7 +543,7 @@
 				<td>Makefile</td>
 				<td>MSVC</td>
 			</tr>
-			<tr class="entry">
+			<tr class="entry darkRow">
 				<td>standard</td>
 				<td>Specify the C++ Standard used by the compiler.</td>
 				<td>Enum</td>
@@ -470,7 +559,7 @@
 				<td class="supported-yes"></td>
 				<td class="supported-no"></td>			
 			</tr>
-			<tr class="entry">
+			<tr class="entry brightRow">
 				<td>enable-rtti</td>
 				<td>Enable Run-Time Type Information.</td>
 				<td>Boolean</td>
@@ -494,51 +583,51 @@
 				<li><strong>TODO: </strong>Make RTBuild propagate, but ignore and unknown properties, so new custom ones can be added easier.</li>
 			</ul>
         </div>		
-		<!-- Linking shit -->
+		<!-- Linking stuff -->
 		<h3>Linking</h3>
 
 		<div class="footnote">
-			<strong>Note:</strong>
+			<p><strong>Note:</strong>
 			Because M$ Visual Studio doesn't support conditional same-solution project links, linking will be attempted with
-			project dependencies marked as &quot;local&quot; for all platforms and configurations.
+			project dependencies marked as &quot;local&quot; for all platforms and configurations.</p>
         </div>
 		
 		<h3>Rough Notes</h3>
-		There are three levels of properties, Global, Project, and File.<br/>
+		<p>There are three levels of properties, Global, Project, and File.<br/>
 		Global properties apply to EVERYTHING.<br/>
 		Project properties apply to everything in that project.<br/>
 		File properties only apply to that specific file.<br/>
 
 		Properties will overwrite one another in the following order:<br/>
 		File > Project > Global<br/>
-		So any global properties are overwritten by project properties, which are overwritten by file properties.
+		So any global properties are overwritten by project properties, which are overwritten by file properties.</p>
 		
 		<h3>Internal Workings (Ignore these)</h3>
 		fEntry properties:
 		<table border="1">
 			<thead>
-				<tr>
+				<tr class="brightRow">
 					<td>Property</td>
 					<td>Notes</td>
 				</tr>
 			</thead>
 			<tbody>
-				<tr>
+				<tr class="darkRow">
 					<td>fullpath</td>
 					<td>The full path to the file, relative to the solution root.</td>
 				</tr>
-				<tr>
+				<tr class="brightRow">
 					<td>type</td>
 					<td>The type of the file. May be one of:<pre>["c", "cpp", "custom:*"]</pre></td>
 				</tr>
-				<tr>
+				<tr class="darkRow">
 					<td>output</td>
 					<td>
 						The full path of the output file, relative to the project root.<br>
 						Directly substituted for %OUT%
 					</td>
 				</tr>
-				<tr>
+				<tr class="brightRow">
 					<td>input</td>
 					<td>
 						The input file, relative to the project root. <br>
@@ -547,6 +636,6 @@
 				</tr>
 			</tbody>
 		</table>
-		
+		</div>
 	</body>
 </html>
