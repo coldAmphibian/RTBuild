@@ -1,10 +1,8 @@
 #!/usr/bin/python
-import os.path, sys
 
 # Hack the path to allow us to import RTBuild from our parent directory.
 sys.path.append(os.path.realpath(os.path.join(__file__, "../../..")))
 
-from RTBuild import *
 from MakefileGenerator import *
 from MSVCGenerator import *
 

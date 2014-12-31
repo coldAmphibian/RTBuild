@@ -11,7 +11,10 @@
  " published by the Free Software Foundation.
 """
 
-import sys, os, fnmatch, copy, subprocess, uuid
+import sys
+import os
+import fnmatch
+import copy
 import xml.etree.ElementTree as XMLTree
 
 
@@ -21,7 +24,10 @@ class RTBuild():
     :param buildTargets: A list of all the supported targets. See examples for more information.
     :param exclDirs: A list of directories that are excluded from search, relative to the execution directory.
     """
-    def __init__(self, folder, buildTargets, exclDirs = [], **properties):
+    def __init__(self, folder, buildTargets, exclDirs=None, **properties):
+
+        if exclDirs is None:
+            exclDirs = []
 
         self.m_RawProjects = {}
         self.m_ProcessedProjects = {}
@@ -148,13 +154,17 @@ class RTBuild():
         # There's no global substitutions as of yet
         return string
 
-    def _ss_project_apply(self, string, project, configuration, platform, exclude=[]):
+    def _ss_project_apply(self, string, project, configuration, platform, exclude=None):
         """
         Apply project-level string substitutions.
         :param string: The string to process.
         :param project: The project.
         :return:
         """
+
+        if exclude is None:
+            exclude = []
+
         string = self._ss_global_apply(string)
 
         targetInfo = self.m_BuildTargets[configuration][platform]
@@ -194,7 +204,7 @@ class RTBuild():
 
         return string
 
-    def _ss_file_apply(self, string, fEntry, project, configuration, platform, exclude=[]):
+    def _ss_file_apply(self, string, fEntry, project, configuration, platform, exclude=None):
         """
         Apply file-level string substitutions
         :param string:
@@ -204,6 +214,9 @@ class RTBuild():
         :param platform:
         :return:
         """
+
+        if exclude is None:
+            exclude = []
 
         string = self._ss_project_apply(string, project, configuration, platform, ["%INTDIR%"] + exclude)
 
@@ -474,7 +487,8 @@ class RTBuild():
 
 class BuildGenerator():
     def __init__(self):
-        pass;
+        self.m_Properties = self.m_Targets = self.m_Projects = None
+
     def generate(self, projects, targets, props):
         self.m_Projects = copy.deepcopy(projects)
         self.m_Targets = copy.deepcopy(targets)

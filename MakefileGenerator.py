@@ -10,10 +10,10 @@
  " it under the terms of the GNU General Public License version 2 as
  " published by the Free Software Foundation.
 """
-import sys, os, fnmatch, copy, subprocess, uuid
-import xml.etree.ElementTree as XMLTree
+import sys
+import os
+import subprocess
 
-from RTBuild import RTBuild
 from RTBuild import BuildGenerator
 
 class MakefileGenerator(BuildGenerator):
