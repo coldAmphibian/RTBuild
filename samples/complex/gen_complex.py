@@ -1,5 +1,6 @@
 #!/usr/bin/python
 
+import sys, os
 # Hack the path to allow us to import RTBuild from our parent directory.
 sys.path.append(os.path.realpath(os.path.join(__file__, "../../..")))
 

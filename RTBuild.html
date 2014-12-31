@@ -160,6 +160,26 @@ pre {
 	<body>
 		<div id="entire">
 		<h1>RTBuild</h1>
+        <div>
+            <h3>Documentation</h3>
+            Welcome to the documentation for RTBuild.
+            <br>
+            I realise that this documentation isn't very good, this is simply because this document originally started
+            off as a scratchpad, and eventually evolved into what you see now.
+            <br>
+        </div>
+        <div>
+            <h3>Usage</h3>
+            Just navigate to the directory your script is in and run it.
+            <br><br>
+            For the <em>complex</em> sample project, navigate to <em>./samples/complex/</em>, and run <em>gen_complex.py</em>
+            <br>
+            <strong>It is important that you navigate to the scripts directory first.</strong>
+            <br>
+            <p class="footnote">
+                TODO: Account for non-local execution.
+            </p>
+        </div>
 		<div>
 			<h3>Forced Compiler Flags</h3>
 			<p>
@@ -211,7 +231,6 @@ pre {
 {"name":"arch/x86_64/x86_64.asm", "type":"custom:yasm", "configuration":"*", 
 "platform":"x86_64-*", "output":"%INTDIR%/%IN%.%OBJEXT%", "add_output":[], "add_inputs":[], "link":"true"},
 			</pre>
-			<p>Result:</p>
 		</p>
 
 		<h3>String Substitutions</h3>
@@ -290,7 +309,7 @@ pre {
 				<td>%INTDIR%</td>
 				<td>File</td>
 				<td><div class="desc">The project's intermediate directory, where all the object files are placed.<br />
-					Relative to the project directory. This overrides the Project-scoped variable of the same name.</td>
+					Relative to the project directory. This overrides the Project-scoped variable of the same name.</div></td>
 				<td><div class="sampleVal">../../build/Windows/x86_64-generic/sampleproject</div></td>
 			</tr>
 
@@ -580,7 +599,7 @@ pre {
 			<strong>Notes:</strong><br/>
 			<ul>
 				<li>MSVC will use whatever standard it wants to, there is no setting for this.</li>
-				<li><strong>TODO: </strong>Make RTBuild propagate, but ignore and unknown properties, so new custom ones can be added easier.</li>
+				<li><strong>TODO: </strong>Make RTBuild propagate, but ignore any unknown properties, so new custom ones can be added easier.</li>
 			</ul>
         </div>		
 		<!-- Linking stuff -->
