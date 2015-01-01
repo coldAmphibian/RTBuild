@@ -30,7 +30,7 @@ class MakefileGenerator(BuildGenerator):
         decProps["CPPDEFS"]         = ["-D{0}".format(d) for d in props["CPPDEFS"]]
         decProps["CDEFS"]           = ["-D{0}".format(d) for d in props["CDEFS"]]
         decProps["CXXDEFS"]         = ["-D{0}".format(d) for d in props["CXXDEFS"]]
-        decProps["INCLUDE_DIRS"]    = ["-I{0}".format(i) for i in props["INCLUDE_DIRS"]]
+        decProps["INCLUDE_DIRS"]    = ["-I{0}".format(os.path.join(os.path.dirname(sys.argv[0]), i)) for i in props["INCLUDE_DIRS"]]
         decProps["STRIP_SYMBOLS"]   = props["STRIP_SYMBOLS"]
         decProps["DEBUG"]           = props["DEBUG"]
         return decProps

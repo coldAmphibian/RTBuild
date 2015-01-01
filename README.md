@@ -11,7 +11,7 @@ See the *samples* folder for usage samples.
  - See RTBuild.html
  - Do proper documentation.
  - Rework custom tools to use a "generator" class, allowing the use of project settings such as include directories.
- - Account for non-local executions.
+ - ~~Account for non-local executions.~~ Done
  - Add an optional "filters" option, used for filters in MSVC.
 
 License
