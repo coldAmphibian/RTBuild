@@ -10,7 +10,7 @@ See the *samples* folder for usage samples.
 ### Todo's
  - See RTBuild.html
  - Do proper documentation.
- - Rework custom tools to use a "generator" class, allowing the use of project settings such as include directories.
+ - ~~Rework custom tools to use a "generator" class, allowing the use of project settings such as include directories.~~ Done
  - ~~Account for non-local executions.~~ Done
  - Add an optional "filters" option, used for filters in MSVC.
 

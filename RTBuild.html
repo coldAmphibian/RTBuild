@@ -200,38 +200,10 @@ pre {
 			Although both GCC and Visual Studio have inbuilt assemblers, <i>AS</i>, and <i>ML</i> respectively, support
 			for ASM files has been implemented as a custom build tool.
 		</p>
-		<p>
-			Custom Build Tools are defined in the target definitions under the &quot;CUSTOMTOOLS&quot; section.<br />
-			For each entry in the section, the key is the name of the tool, the value dictionary holds the properties of the tool.
-		</p>
-		<p>
-			For this example, we'll use the <i>yasm</i> assembler on both x86 and x64 platforms on Windows.<br />
-			In the targets definition:
-			<pre>{
-"Windows":
-    {
-        "x86-generic":
-        {
-            "CUSTOMTOOLS":
-            {
-                "yasm": { "EXE": "yasm", "FLAGS": ["-f", "win32", "-o", "%OUT%", "%IN%"] }
-            }
-        },
-        "x86_64-generic":
-        {
-            "CUSTOMTOOLS":
-            {
-                "yasm": { "EXE": "yasm", "FLAGS": ["-f", "win64", "-o", "%OUT%", "%IN%"] }
-            }
-        }
-    }
-}</pre>
-			<p>In <i>buildfile.py</i>:</p>
-			<pre>
-{"name":"arch/x86_64/x86_64.asm", "type":"custom:yasm", "configuration":"*", 
-"platform":"x86_64-*", "output":"%INTDIR%/%IN%.%OBJEXT%", "add_output":[], "add_inputs":[], "link":"true"},
-			</pre>
-		</p>
+        <p>
+            To define a Custom Build Tool, simply inherit from the <em>CustomTool</em> class.<br/>
+            An example using the <em>yasm</em> assembler is available in the <em>complex</em> sample.
+        </p>
 
 		<h3>String Substitutions</h3>
 		<table id="stringSubTable">

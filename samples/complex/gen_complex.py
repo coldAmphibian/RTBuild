@@ -6,6 +6,7 @@ sys.path.append(os.path.realpath(os.path.join(__file__, "../../..")))
 
 from MakefileGenerator import *
 from MSVCGenerator import *
+from RTBuild import *
 
 # These must match up with the ones in config.h
 COMPLEX_ARCH_X86 = 1
@@ -186,6 +187,25 @@ targets = \
     }
 
 
+class YASMTool(CustomTool):
+    def generate_build_command(self, fEntry, target, globalProps, configuration, platform, subProc):
+
+        if target["OBJEXT"] == ".o":
+            if fnmatch.fnmatch(platform, "x86-*"):
+                outFormat = "elf32"
+            elif fnmatch.fnmatch(platform, "x86_64-*"):
+                outFormat = "elf64"
+        elif target["OBJEXT"] == ".obj":
+            if fnmatch.fnmatch(platform, "x86-*"):
+                outFormat = "win32"
+            elif fnmatch.fnmatch(platform, "x86_64-*"):
+                outFormat = "win64"
+
+        return [subProc(i) for i in ["yasm", "-f", outFormat, "-o", "%OUT%", "%IN%"]]
+
+    def get_tool_name(self):
+        return "yasm"
+
 DEBUG = True
 RELEASE = False
 
@@ -201,7 +221,7 @@ elif RELEASE:
     cppProps["lto"] = "true"
     cppProps["werror"] = "true"
 
-build = RTBuild(".", targets, [],
+build = RTBuild(".", targets, [], [YASMTool()],
                 CPPPROPS=cppProps,
                 CPROPS={"standard": "C99"},
                 CXXPROPS={"standard": "C++11"},

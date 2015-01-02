@@ -90,7 +90,8 @@ class MakefileGenerator(BuildGenerator):
 
         return out
 
-    def generate(self, projects, targets, props):
+    def generate(self, projects, targets, props, custTools):
+        BuildGenerator.generate(self, projects, targets, props, custTools)
         self.m_RawProps = props
         self.m_Properties = self._decode_props(props)
 

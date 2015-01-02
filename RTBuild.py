@@ -18,20 +18,27 @@ import copy
 import xml.etree.ElementTree as XMLTree
 
 
-class RTBuild():
+class RTBuild(object):
     """Initialise a new instance of RTBuild
     :param folder: The starting folder, relative to the execution directory.
     :param buildTargets: A list of all the supported targets. See examples for more information.
     :param exclDirs: A list of directories that are excluded from search, relative to the execution directory.
     """
-    def __init__(self, folder, buildTargets, exclDirs=None, **properties):
+    def __init__(self, folder, buildTargets, exclDirs=None, customTools=None, **properties):
 
         if exclDirs is None:
             exclDirs = []
 
+        if customTools is None:
+            customTools = []
+
         self.m_RawProjects = {}
         self.m_ProcessedProjects = {}
         self.m_BuildTargets = buildTargets
+        self.m_CustomTools = {}
+
+        for tool in customTools:
+            self._register_custom_tool(tool)
 
         self._define_default_properties()
         self.m_GlobalProps = self._calculate_global_properties(**properties)
@@ -39,6 +46,25 @@ class RTBuild():
 
         self._traverse_folder(folder, [os.path.realpath(p) for p in exclDirs])
         self._preprocess_projects()
+
+    def _register_custom_tool(self, tool):
+        """
+        Register a custom tool.
+        :param tool: The custom tool to register.
+        :raise Exception: If isinstance(type(tool), CustomTool) != true
+            of if a duplicate tool is added.
+
+        :type tool: CustomTool
+        """
+        if isinstance(type(tool), CustomTool):
+            raise Exception("Invalid custom tool")
+
+        name = tool.get_tool_name()
+
+        if name in self.m_CustomTools:
+            raise Exception("Duplicate tool with name {0}".format(name))
+
+        self.m_CustomTools[name] = tool
 
     def _define_default_properties(self):
         """
@@ -104,6 +130,7 @@ class RTBuild():
         def union_prop_dict(name, d1, d2):
             """
             Union the user properties and default properties dictionaries, validating each value on the way.
+            :param name: The name of the property group.
             :param d1: The users properties dictionary.
             :param d2: The default properties dictionary.
             :return: The validated union of the two.
@@ -391,6 +418,7 @@ class RTBuild():
                                     except Exception as e:
                                         self._validate_property("CPPPROPS", key, f["PROPS"][key])
 
+                            fEntry["PROPS"] = copy.deepcopy(f.get("PROPS", {}))
                             linkFlag = False
                             if fEntry["type"].startswith("custom"):
                                 tmp = fEntry["type"].split(":", 1)
@@ -398,16 +426,18 @@ class RTBuild():
                                     raise Exception("Custom file \"{0}\" without tool.", fEntry["fullpath"])
 
                                 try:
-                                    custTool = currPlat["CUSTOMTOOLS"][tmp[1]]
+                                    custTool = self.m_CustomTools[tmp[1]]
                                 except KeyError as e:
                                     raise Exception("Unknown custom tool \"{0}\"", tmp[1])
 
+                                def subProc(s):
+                                    return RTBuild._ss_file_apply(self, s, fEntry, procProj, config, platform, exclude=[])
+
                                 fEntry["output"] = RTBuild._ss_file_apply(self, f["output"], fEntry, procProj, config, platform, exclude=["%OUT%"])
-                                fEntry["command"] = [custTool["EXE"]] + [RTBuild._ss_file_apply(self, fl, fEntry, procProj, config, platform) for fl in custTool["FLAGS"]]
+                                fEntry["command"] = custTool.generate_build_command(fEntry, currPlat, self.m_GlobalProps, config, platform, subProc)
+
                                 if f["link"] == "true":
                                     linkFlag = True
-
-                            fEntry["PROPS"] = copy.deepcopy(f.get("PROPS", {}))
 
                             if fEntry["type"] in ["c", "cpp"]:
                                 linkFlag = True
@@ -427,8 +457,7 @@ class RTBuild():
         if isinstance(type(generator), BuildGenerator):
             raise Exception("Invalid generator")
 
-        generator.generate(copy.deepcopy(self.m_ProcessedProjects), copy.deepcopy(self.m_BuildTargets),
-                           copy.deepcopy(self.m_GlobalProps))
+        generator.generate(self.m_ProcessedProjects, self.m_BuildTargets, self.m_GlobalProps, self.m_CustomTools)
 
     def dump(self):
         RTBuild.niceprint(self.m_ProcessedProjects)
@@ -485,11 +514,52 @@ class RTBuild():
                     except AttributeError:
                         pass
 
-class BuildGenerator():
-    def __init__(self):
-        self.m_Properties = self.m_Targets = self.m_Projects = None
 
-    def generate(self, projects, targets, props):
+class CustomTool(object):
+    """
+    The interface for a custom tool.
+    """
+
+    def __init__(self):
+        pass
+
+    def generate_build_command(self, fEntry, target, globalProps, configuration, platform, subProc):
+        """
+        Generate a build command.
+        :param fEntry: The file information.
+        :param target: The target information.
+        :param globalProps The global properties.
+        :param configuration The current configuration.
+        :param platform The current platform.
+        :param subProc A callback to apply any substitutions. subProc(str)
+
+        :type fEntry: dict
+        :type target: dict
+        :type configuration: str
+        :type platform: str
+        :type subProc: function
+
+        :returns An list of the command elements, similar to C's argv.
+        """
+
+    def get_tool_name(self):
+        """
+        Get the name of the tool associated with this class.
+        :raise Exception: If the base class version is called directly.
+        """
+        raise Exception("class CustomTool cannot be initialised")
+
+
+class BuildGenerator(object):
+    """
+    The interface for a generator.
+    """
+
+    def __init__(self):
+        self.m_Properties = self.m_CustomTools = self.m_Targets = self.m_Projects = None
+
+    def generate(self, projects, targets, props, custTools):
         self.m_Projects = copy.deepcopy(projects)
         self.m_Targets = copy.deepcopy(targets)
         self.m_Properties = copy.deepcopy(props)
+        self.m_CustomTools = copy.deepcopy(custTools)

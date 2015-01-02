@@ -11,10 +11,11 @@
  " published by the Free Software Foundation.
 """
 
-import sys, os, fnmatch, copy, subprocess, uuid
+import os
+import fnmatch
+import copy
+import uuid
 import xml.etree.ElementTree as XMLTree
-
-from RTBuild import RTBuild
 from RTBuild import BuildGenerator
 
 class MSVCGenerator(BuildGenerator):
@@ -94,8 +95,8 @@ class MSVCGenerator(BuildGenerator):
 
         return vcxProj
 
-    def generate(self, projects, targets, props):
-        BuildGenerator.generate(self, projects, targets, props)
+    def generate(self, projects, targets, props, custTools):
+        BuildGenerator.generate(self, projects, targets, props, custTools)
 
         solName = "Solution.sln"
         solGUID = uuid.uuid4()
@@ -328,7 +329,8 @@ class MSVCGenerator(BuildGenerator):
 
         root.append(tmp)
 
-    def _generate_props(self, props):
+    @staticmethod
+    def _generate_props(props):
         ret = {}
         if "lto" in props:
             ret["WholeProgramOptimisation"] = props["lto"]
@@ -346,6 +348,8 @@ class MSVCGenerator(BuildGenerator):
                 tmp = "Full"
             elif level == "s":
                 tmp = "MinSpace"
+            else:
+                tmp = "Fuck."
 
             ret["Optimization"] = tmp
 
