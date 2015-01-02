@@ -101,11 +101,6 @@ targets = \
                         "DLLEXT": ".so",
                         "LIBEXT": ".a",
                         "OBJEXT": ".o",
-                        "CUSTOMTOOLS":
-                        {
-                            "yasm": { "EXE": "yasm", "FLAGS": ["-f", "elf64", "-o", "%OUT%", "%IN%"] },
-                            "nasm": { "EXE": "nasm", "FLAGS": ["-f", "elf64", "-o", "%OUT%", "%IN%"] },
-                        },
                     },
                 "x86-generic":
                     {
@@ -126,11 +121,6 @@ targets = \
                         "DLLEXT": ".so",
                         "LIBEXT": ".a",
                         "OBJEXT": ".o",
-                        "CUSTOMTOOLS":
-                        {
-                            "yasm": { "EXE": "yasm", "FLAGS": ["-f", "elf32", "-o", "%OUT%", "%IN%"] },
-                            "nasm": { "EXE": "nasm", "FLAGS": ["-f", "elf32", "-o", "%OUT%", "%IN%"] },
-                        },
                     },
             },
         "Windows":
@@ -153,11 +143,6 @@ targets = \
                         "DLLEXT": ".dll",
                         "LIBEXT": ".a",
                         "OBJEXT": ".obj",
-                        "CUSTOMTOOLS":
-                        {
-                            "yasm": { "EXE": "yasm", "FLAGS": ["-f", "win64", "-o", "%OUT%", "%IN%"] },
-                            "nasm": { "EXE": "nasm", "FLAGS": ["-f", "win64", "-o", "%OUT%", "%IN%"] },
-                        },
                     },
                 "x86-generic":
                     {
@@ -177,11 +162,6 @@ targets = \
                         "DLLEXT": ".dll",
                         "LIBEXT": ".a",
                         "OBJEXT": ".obj",
-                        "CUSTOMTOOLS":
-                        {
-                            "yasm": { "EXE": "yasm", "FLAGS": ["-f", "win32", "-o", "%OUT%", "%IN%"] },
-                            "nasm": { "EXE": "nasm", "FLAGS": ["-f", "win32", "-o", "%OUT%", "%IN%"] },
-                        },
                     },
             }
     }

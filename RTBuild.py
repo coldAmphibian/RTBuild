@@ -428,7 +428,7 @@ class RTBuild(object):
                                 try:
                                     custTool = self.m_CustomTools[tmp[1]]
                                 except KeyError as e:
-                                    raise Exception("Unknown custom tool \"{0}\"", tmp[1])
+                                    raise Exception("Unknown custom tool \"{0}\"".format(tmp[1]))
 
                                 def subProc(s):
                                     return RTBuild._ss_file_apply(self, s, fEntry, procProj, config, platform, exclude=[])
