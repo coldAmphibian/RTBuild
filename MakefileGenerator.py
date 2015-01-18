@@ -162,9 +162,9 @@ class MakefileGenerator(BuildGenerator):
                     linkArgs, linkDirs = self._calc_ext_deps(currProj, projects[config][platform])
 
                     if currProj["type"] == "static":
-                        makeProj["commands"] += ["\t{0} rs \"{1}\"".format(toolset["AR"],
-                                                                           currProj["outpath"] + " ".join(
-                                                                               [f["build"]["objpath"] for f in
+                        makeProj["commands"] += ["\t{0} rs \"{1}\" {2}".format(toolset["AR"],
+                                                                           currProj["outpath"], " ".join(
+                                                                               [("\"" + f["build"]["objpath"] + "\"") for f in
                                                                                 currProj["files"]]))]
                     else:
 
