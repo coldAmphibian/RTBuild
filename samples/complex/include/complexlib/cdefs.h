@@ -10,7 +10,7 @@ extern "C" {
 
 int COMPLEXLIB_API complex_foo(int bar);
 int COMPLEXLIB_API complex_add(int a, int b);
-
+void COMPLEXLIB_API __plat_link_test(void);
 #if defined(__cplusplus)
 }
 #endif
