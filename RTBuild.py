@@ -353,6 +353,9 @@ class RTBuild(object):
                     procProj["CPPDEFS"] = rawProject["CPPDEFS"]
                     procProj["type"] = rawProject["type"]
 
+                    if procProj["type"] not in ["static", "module", "executable"]:
+                        raise Exception("Invalid project type {0}".format(procProj["type"]))
+
                     procProj["outdir"] = self._ss_project_apply(rawProject["outdir"], procProj, config, platform)
                     procProj["outfile"] = self._ss_project_apply(rawProject["outfile"], procProj, config, platform)
                     procProj["outpath"] = os.path.join(procProj["outdir"], procProj["outfile"])
