@@ -72,48 +72,42 @@ class RTBuild(object):
         :return:
         """
         defProps = {}
-
+        props = {}
         # Define all the CPP properties
-        cppProps = {}
-        cppProps["optimise"]                = {"values": ['0', '1', '2', '3', 's'],     "default": '2'}
-        cppProps["werror"]                  = {"values": ["true", "false"],             "default": "false"}
-        cppProps["wall"]                    = {"values": ["true", "false"],             "default": "false"}
-        cppProps["lto"]                     = {"values": ["true", "false"],             "default": "false"}
-        cppProps["wrn-unused-parameter"]    = {"values": ["true", "false"],             "default": "true"}
-        defProps["CPPPROPS"]        = cppProps
+        props["cpp.optimise"]                = {"values": ['0', '1', '2', '3', 's'],     "default": '2'}
+        props["cpp.werror"]                  = {"values": ["true", "false"],             "default": "false"}
+        props["cpp.wall"]                    = {"values": ["true", "false"],             "default": "false"}
+        props["cpp.lto"]                     = {"values": ["true", "false"],             "default": "false"}
+        props["cpp.wrn-unused-parameter"]    = {"values": ["true", "false"],             "default": "true"}
 
         # Define all the C properties
-        cProps = {}
-        cProps["standard"]          = {"values": ["C89", "C99", "C11"],         "default": "C99"}
-        defProps["CPROPS"]          = cProps
+        props["c.standard"]                  = {"values": ["C89", "C99", "C11"],         "default": "C99"}
 
         # Define all the CXX properties
-        cxxProps = {}
-        cxxProps["standard"]        = {"values": ["C++98", "C++03", "C++11"],   "default": "C++03"}
-        defProps["CXXPROPS"]        = cxxProps
+        props["cxx.standard"]        = {"values": ["C++98", "C++03", "C++11", "C++14"],   "default": "C++03"}
 
+        defProps["PROPS"]           = props
         defProps["INCLUDE_DIRS"]    = []
         defProps["CPPDEFS"]         = []
         defProps["CDEFS"]           = []
         defProps["CXXDEFS"]         = []
         defProps["STRIP_SYMBOLS"]   = "false"
-
         defProps["DEBUG"]           = "false"
 
         self.m_DefaultProperties = defProps
 
-    def _validate_property(self, section, property, value):
-        if section not in self.m_DefaultProperties:
-            raise Exception("Invalid property section {0}".format(section))
+    def _validate_property(self, property, value):
 
-        if property not in self.m_DefaultProperties[section]:
-            raise Exception("Invalid/Unknown property \"{0}\" in section {1}".format(property, section))
+        # Ignore unknown properties
+        if property not in self.m_DefaultProperties["PROPS"]:
+            #raise Exception("Invalid/Unknown property \"{0}\" in section {1}".format(property, section))
+            return
 
-        defProp = self.m_DefaultProperties[section][property]
+        defProp = self.m_DefaultProperties["PROPS"][property]
 
         if type(defProp) == dict:
             if value not in defProp["values"]:
-                raise Exception("Unknown value \"{0}\" for property \"{1}\" in section \"{2}\"".format(value, property, section))
+                raise Exception("Unknown value \"{0}\" for property \"{1}\"".format(value, property))
         elif type(defProp) == list:
             pass
         elif type(defProp) == str:
@@ -363,18 +357,18 @@ class RTBuild(object):
                     procProj["outfile"] = self._ss_project_apply(rawProject["outfile"], procProj, config, platform)
                     procProj["outpath"] = os.path.join(procProj["outdir"], procProj["outfile"])
 
-                    for key in rawProject["CPROPS"]:
-                        self._validate_property("CPROPS", key, rawProject["CPROPS"][key])
+                    for key in rawProject["PROPS"]:
+                        self._validate_property(key, rawProject["PROPS"][key])
 
-                    for key in rawProject["CXXPROPS"]:
-                        self._validate_property("CXXPROPS", key, rawProject["CXXPROPS"][key])
+                    #for key in rawProject["CXXPROPS"]:
+                    #    self._validate_property("CXXPROPS", key, rawProject["CXXPROPS"][key])
 
-                    for key in rawProject["CPPPROPS"]:
-                        self._validate_property("CPPPROPS", key, rawProject["CPPPROPS"][key])
+                    #for key in rawProject["CPPPROPS"]:
+                    #    self._validate_property("CPPPROPS", key, rawProject["CPPPROPS"][key])
 
-                    procProj["CPROPS"] = rawProject["CPROPS"]
-                    procProj["CXXPROPS"] = rawProject["CXXPROPS"]
-                    procProj["CPPPROPS"] = rawProject["CPPPROPS"]
+                    procProj["PROPS"] = rawProject["PROPS"]
+                    #procProj["CXXPROPS"] = rawProject["CXXPROPS"]
+                    #procProj["CPPPROPS"] = rawProject["CPPPROPS"]
 
                     procProj["makeDeps"] = [
                         {"name": i["name"],
@@ -407,9 +401,11 @@ class RTBuild(object):
 
                             # Validate the per-file properties
                             for key in f.get("PROPS", {}):
+                                self._validate_property(key, f["PROPS"][key])
+                                """
                                 if f["type"] == "c":
                                     try:
-                                        self._validate_property("CPROPS", key, f["PROPS"][key])
+                                        self._validate_property("PROPS", key, f["PROPS"][key])
                                     except Exception as e:
                                         self._validate_property("CPPPROPS", key, f["PROPS"][key])
                                 elif f["type"] == "cpp":
@@ -417,6 +413,7 @@ class RTBuild(object):
                                         self._validate_property("CXXPROPS", key, f["PROPS"][key])
                                     except Exception as e:
                                         self._validate_property("CPPPROPS", key, f["PROPS"][key])
+                                """
 
                             fEntry["PROPS"] = copy.deepcopy(f.get("PROPS", {}))
                             linkFlag = False

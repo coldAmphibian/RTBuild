@@ -189,23 +189,21 @@ class YASMTool(CustomTool):
 DEBUG = True
 RELEASE = False
 
-cppProps = {"wall": "true", "wrn-unused-parameter": "false"}
+props = {"cpp.wall": "true", "cpp.wrn-unused-parameter": "false", "c.standard": "C99", "cxx.standard": "C++11"}
+
 cppDefs = []
 
 if DEBUG:
-    cppProps["optimise"] = "0"
-    cppProps["lto"] = "false"
+    props["cpp.optimise"] = "0"
+    props["cpp.lto"] = "false"
     cppDefs += ["COMPLEX_DEBUG"]
 elif RELEASE:
-    cppProps["optimise"] = "3"
-    cppProps["lto"] = "true"
-    cppProps["werror"] = "true"
+    props["cpp.optimise"] = "3"
+    props["cpp.lto"] = "true"
+    props["cpp.werror"] = "true"
 
 build = RTBuild(".", targets, [], [YASMTool()],
-                CPPPROPS=cppProps,
-                CPROPS={"standard": "C99"},
-                CXXPROPS={"standard": "C++11"},
-
+                PROPS=props,
                 CPPDEFS = cppDefs,
                 CDEFS = [],
                 CXXDEFS = [],
@@ -215,5 +213,5 @@ build = RTBuild(".", targets, [], [YASMTool()],
                 DEBUG={True: "true", False: "false"}[DEBUG]
 )
 
-build.generate(MSVCGenerator(["Windows"], {"x64":["x86_64-*"], "Win32":["x86-*"]}))
+#build.generate(MSVCGenerator(["Windows"], {"x64":["x86_64-*"], "Win32":["x86-*"]}))
 build.generate(MakefileGenerator(gcc_tools))

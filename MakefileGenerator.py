@@ -24,9 +24,9 @@ class MakefileGenerator(BuildGenerator):
     def _decode_props(self, props):
         decProps = {}
 
-        decProps["CPPFLAGS"]        = ["-fvisibility=hidden", "-mno-ms-bitfields"] + self._decode_c_common_props(props["CPPPROPS"])
-        decProps["CFLAGS"]          = self._decode_c_props(props["CPROPS"])
-        decProps["CXXFLAGS"]        = self._decode_cxx_props(props["CXXPROPS"])
+        decProps["CPPFLAGS"]        = ["-fvisibility=hidden", "-mno-ms-bitfields"] + self._decode_c_common_props({p:props["PROPS"][p] for p in props["PROPS"] if p.startswith("cpp.")})
+        decProps["CFLAGS"]          = self._decode_c_props({p:props["PROPS"][p] for p in props["PROPS"] if p.startswith("c.")})
+        decProps["CXXFLAGS"]        = self._decode_cxx_props({p:props["PROPS"][p] for p in props["PROPS"] if p.startswith("cxx.")})
         decProps["CPPDEFS"]         = ["-D{0}".format(d) for d in props["CPPDEFS"]]
         decProps["CDEFS"]           = ["-D{0}".format(d) for d in props["CDEFS"]]
         decProps["CXXDEFS"]         = ["-D{0}".format(d) for d in props["CXXDEFS"]]
@@ -38,33 +38,39 @@ class MakefileGenerator(BuildGenerator):
     def _decode_c_common_props(self, props, chained=False):
         out = []
 
-        if "wall" in props and props["wall"] == "true":
+        if "cpp.wall" in props and props["cpp.wall"] == "true":
             out += ["-Wall", "-Wextra"]
 
-        if "werror" in props and props["werror"] == "true":
+        if "cpp.werror" in props and props["cpp.werror"] == "true":
             out += ["-Werror"]
 
-        if "wrn-unused-parameter" in props:
-            if props["wrn-unused-parameter"] == "true":
+        if "cpp.wrn-unused-parameter" in props:
+            if props["cpp.wrn-unused-parameter"] == "true":
                 out += ["-Wunused-parameter"]
             else:
                 out += ["-Wno-unused-parameter"]
 
         # These just happen to correspond
-        if "optimise" in props:
-            out += ["-O{0}".format(props["optimise"])]
+        if "cpp.optimise" in props:
+            out += ["-O{0}".format(props["cpp.optimise"])]
+
+        if "cpp.lto" in props:
+            if props["cpp.lto"] == "true":
+                out += ["-flto"]
+            elif props["cpp.lto"] == "false":
+                out += ["-fno-lto"]
 
         return out
 
     def _decode_c_props(self, props):
         out = self._decode_c_common_props(props)
 
-        if "standard" in props:
-            if props["standard"] == "C89":
+        if "c.standard" in props:
+            if props["c.standard"] == "C89":
                 out += ["-std=c89"]
-            elif props["standard"] == "C99":
+            elif props["c.standard"] == "C99":
                 out += ["-std=c99"]
-            elif props["standard"] == "C11":
+            elif props["c.standard"] == "C11":
                 out += ["-std=c11"]
 
         return out
@@ -72,21 +78,15 @@ class MakefileGenerator(BuildGenerator):
     def _decode_cxx_props(self, props):
         out = self._decode_c_common_props(props)
 
-        if "standard" in props:
-            if props["standard"] == "C++98":
+        if "cxx.standard" in props:
+            if props["cxx.standard"] == "C++98":
                 out += ["-std=c++98"]
-            elif props["standard"] == "C++03":
+            elif props["cxx.standard"] == "C++03":
                 out += ["-std=c++03"]
-            elif props["standard"] == "C++11":
+            elif props["cxx.standard"] == "C++11":
                 out += ["-std=c++11"]
-            elif props["standard"] == "C++14":
+            elif props["cxx.standard"] == "C++14":
                 out += ["-std=c++14"]
-
-        if "lto" in props:
-            if props["lto"] == "true":
-                out += ["-flto"]
-            elif props["lto"] == "false":
-                out += ["-fno-lto"]
 
         return out
 
@@ -103,15 +103,17 @@ class MakefileGenerator(BuildGenerator):
                 currPlat = currCfg[platform]
                 for project in currPlat:
                     currProj = currPlat[project]
-                    currProps = {"CFLAGS":self._decode_c_props(currProj["CPROPS"]),
-                                 "CXXFLAGS":self._decode_cxx_props(currProj["CXXPROPS"]),
-                                 "CPPFLAGS":self._decode_c_common_props(currProj["CPPPROPS"])}
+                    currProps = {"CFLAGS":self._decode_c_props({p:currProj["PROPS"][p] for p in currProj["PROPS"] if p.startswith("c.")}),
+                                 "CXXFLAGS":self._decode_cxx_props({p:currProj["PROPS"][p] for p in currProj["PROPS"] if p.startswith("cxx.")}),
+                                 "CPPFLAGS":self._decode_c_common_props({p:currProj["PROPS"][p] for p in currProj["PROPS"] if p.startswith("cpp.")})}
 
                     makefile[".PHONY"]["deps"] += [currProj["fullname"]]
 
                     for f in currProj["files"]:
                         self._generate_build_command(f, targets[config][platform], self.m_Tools[config][platform],
                                                      currProj, currProps)
+                        #print f
+                        #exit(1)
                         buildData = f["build"]
 
                         mTarget = makefile[buildData["objpath"]] = {"commands": [" ".join(l for l in c) for c in buildData["buildCommand"]]}

@@ -131,9 +131,9 @@ class MSVCGenerator(BuildGenerator):
 
     def _process_props(self, vcxProj, rawProj):
         outDict = {}
-        outDict["CPPPROPS"] = dict(self.m_Properties["CPPPROPS"].items() + rawProj["CPPPROPS"].items())
-        outDict["CPROPS"] = dict(self.m_Properties["CPROPS"].items() + rawProj["CPROPS"].items())
-        outDict["CXXPROPS"] = dict(self.m_Properties["CXXPROPS"].items() + rawProj["CXXPROPS"].items())
+        outDict["PROPS"] = dict(self.m_Properties["PROPS"].items() + rawProj["PROPS"].items())
+        #outDict["CPROPS"] = dict(self.m_Properties["CPROPS"].items() + rawProj["CPROPS"].items())
+        #outDict["CXXPROPS"] = dict(self.m_Properties["CXXPROPS"].items() + rawProj["CXXPROPS"].items())
         return outDict
 
     def _generate_msvc_projects(self, vcxProjects, rawProjects, platforms, targets):
@@ -202,7 +202,7 @@ class MSVCGenerator(BuildGenerator):
                 tmp2.text = self.m_Properties["DEBUG"]
                 tmp.append(tmp2)
 
-                genProps = self._generate_props(props["CPPPROPS"])
+                genProps = self._generate_props(props["PROPS"])
                 for prop in genProps:
                     e = XMLTree.Element(prop)
                     e.text = genProps[prop]
@@ -332,11 +332,11 @@ class MSVCGenerator(BuildGenerator):
     @staticmethod
     def _generate_props(props):
         ret = {}
-        if "lto" in props:
-            ret["WholeProgramOptimisation"] = props["lto"]
+        if "cpp.lto" in props:
+            ret["WholeProgramOptimisation"] = props["cpp.lto"]
 
-        if "optimise" in props:
-            level = props["optimise"]
+        if "cpp.optimise" in props:
+            level = props["cpp.optimise"]
             if level == "0":
                 tmp = "Disabled"
             elif level == "1":
@@ -353,17 +353,17 @@ class MSVCGenerator(BuildGenerator):
 
             ret["Optimization"] = tmp
 
-        if "werror" in props:
-            ret["TreatWarningAsError"] = props["werror"]
+        if "cpp.werror" in props:
+            ret["TreatWarningAsError"] = props["cpp.werror"]
 
-        if "wall" in props:
-            if props["wall"] == "true":
+        if "cpp.wall" in props:
+            if props["cpp.wall"] == "true":
                 ret["WarningLevel"] = "EnableAllWarnings"
 
         ret["DisableSpecificWarnings"] = ""
         ret["AdditionalOptions"] = ""
-        if "wrn-unused-parameter" in props:
-            if props["wrn-unused-parameter"] == "true":
+        if "cpp.wrn-unused-parameter" in props:
+            if props["cpp.wrn-unused-parameter"] == "true":
                 # FIXME: MSVC has no proper option for this.
                 ret["AdditionalOptions"] += "/w14100 "
             else:
