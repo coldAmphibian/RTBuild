@@ -14,9 +14,73 @@
 import os
 import fnmatch
 import copy
-import uuid
 import xml.etree.ElementTree as XMLTree
 from RTBuild import BuildGenerator
+
+def generate_guid():
+    """
+    Generate a MSBuild-formatted GUID
+    :return: A MSBuild-formatted GUID
+    :rtype: str
+    """
+    import uuid
+    return "{{{0}}}".format(str(uuid.uuid4()).upper())
+
+class VCXFilter(object):
+    """
+    Represents a MSBuild filters file.
+    """
+    def __init__(self):
+        self.m_Root = XMLTree.Element("Project", ToolsVersion="4.0", xmlns="http://schemas.microsoft.com/developer/msbuild/2003")
+        self.m_Filters = set()
+
+        self.m_Defs = XMLTree.Element("ItemGroup")
+        self.m_Files = XMLTree.Element("ItemGroup")
+
+        self.m_Root.append(self.m_Defs)
+        self.m_Root.append(self.m_Files)
+
+    def add_file(self, file, type, filter):
+        """
+        Add a file to the filter.
+        :param file: The name of the file.
+        :param type: The type of the file, i.e. "ClCompile"
+        :param filter: The name of the filter, i.e. "Platform\Windows"
+
+        :type file: str
+        :type type: str
+        :type filter: str
+        """
+        components = filter.split('\\')
+        for i in range(len(components)):
+            self.m_Filters.add("\\".join(c for c in components[0:len(components) - i]))
+
+        entry = XMLTree.Element(type, Include=file)
+        if filter not in [None, ""]:
+            tmp = XMLTree.Element("Filter")
+            tmp.text = filter
+            entry.append(tmp)
+
+        self.m_Files.append(entry)
+
+    def write(self, file):
+        """
+        Write the filters to the specified file.
+        :param file: The name of the output file.
+
+        :type file: str
+        """
+        for filter in self.m_Filters:
+            element = XMLTree.Element("Filter", Include=filter)
+            guid = XMLTree.Element("UniqueIdentifier")
+            guid.text = generate_guid()
+            element.append(guid)
+            self.m_Defs.append(element)
+
+        import xml.dom.minidom
+        f = open(file, "w")
+        f.write(xml.dom.minidom.parseString(XMLTree.tostring(self.m_Root, 'utf-8')).toprettyxml(indent='\t'))
+        f.close()
 
 class MSVCGenerator(BuildGenerator):
     def __init__(self, winConfig, winPlatform):
@@ -47,7 +111,7 @@ class MSVCGenerator(BuildGenerator):
                     currProj = currPlat[project]
 
                     if project not in vcxProj:
-                        vcxProj[project] = {"guid":uuid.uuid4(),
+                        vcxProj[project] = {"guid":generate_guid(),
                                             "vcxPath":os.path.relpath(os.path.join(currProj["projdir"], project + ".vcxproj"), "."),
                                             "vcxDir":currProj["projdir"],
                                             "configs":{},
@@ -99,7 +163,7 @@ class MSVCGenerator(BuildGenerator):
         BuildGenerator.generate(self, projects, targets, props, custTools)
 
         solName = "Solution.sln"
-        solGUID = uuid.uuid4()
+        solGUID = generate_guid()
 
         self.m_VCXProjects = self._preprocess()
 
@@ -143,7 +207,7 @@ class MSVCGenerator(BuildGenerator):
             vcxProj = vcxProjects[projName]
 
             root = XMLTree.Element("Project", DefaultTargets="Build", ToolsVersion="12.0", xmlns="http://schemas.microsoft.com/developer/msbuild/2003")
-
+            vcxFilter = VCXFilter()
             # Add the project configurations
             self._add_configurations(root, vcxProj, platforms)
 
@@ -153,7 +217,7 @@ class MSVCGenerator(BuildGenerator):
 
             tmp = XMLTree.Element("ProjectGuid")
 
-            tmp.text = "{" + str(vcxProj["guid"]).upper() + "}"
+            tmp.text = vcxProj["guid"]
             globalProps.append(tmp)
 
             tmp = XMLTree.Element("RootNamespace")
@@ -280,6 +344,8 @@ class MSVCGenerator(BuildGenerator):
                 elif f["type"] in ["c", "cpp"]:
                     self._write_clcompile_target(tmp, f, vcxProj, rawProjects, platforms, targets)
 
+                self._write_filter(f, vcxFilter)
+
             # Add inter-project deps
             tmp = XMLTree.Element("ItemGroup")
             for dep in vcxProj["vcxDeps"]:
@@ -288,18 +354,41 @@ class MSVCGenerator(BuildGenerator):
                 tmp.append(tmp2)
                 tmp3 = XMLTree.Element("Project")
                 tmp2.append(tmp3)
-                tmp3.text = "{{{0}}}".format(str(depProj["guid"]).upper())
+                tmp3.text = depProj["guid"]
             root.append(tmp)
 
-            vcxFile = open(vcxProj["vcxPath"], "w")
-            #vcxFile.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")
-
             import xml.dom.minidom
+            vcxFile = open(vcxProj["vcxPath"], "w")
+
             vcxFile.write(xml.dom.minidom.parseString(XMLTree.tostring(root, 'utf-8')).toprettyxml(indent='\t'))
-
-
-            #vcxFile.write(XMLTree.tostring(root, encoding="utf-8"))
             vcxFile.close()
+
+            vcxFilter.write(vcxProj["vcxPath"] + ".filters")
+
+    def _write_filter(self, f, outFilter):
+        """
+
+        :param f:
+        :param outFilter:
+        :return:
+
+        :type outFilter: VCXFilter
+        """
+        inFile = os.path.join(f["dir"], f["name"])
+        if f["type"] in ["c", "cpp"]:
+            type = "ClCompile"
+        else:
+            type = "CustomBuild"
+
+        # Get the filter out of any config:platform pair, they should all
+        # be the same anyway
+        for config in f["configs"]:
+            for plat in f["configs"][config]:
+                tmp = f["configs"][config][plat]
+                if "ide.filter" in tmp["PROPS"]:
+                    outFilter.add_file(inFile, type, tmp["PROPS"]["ide.filter"].replace('/', '\\'))
+                break
+            break
 
     def _write_clcompile_target(self, root, f, vcxProj, rawProjects, platforms, targets):
         inFile = os.path.join(f["dir"], f["name"])
@@ -455,10 +544,10 @@ class MSVCGenerator(BuildGenerator):
 
         for projName in self.m_VCXProjects:
             retLines += [
-                "\t{{{0}}}.{1}.ActiveCfg = {1}".format(str(self.m_VCXProjects[projName]["guid"]).upper(), p["project_target"])
+                "\t{0}.{1}.ActiveCfg = {1}".format(self.m_VCXProjects[projName]["guid"], p["project_target"])
                 for p in vcxPlats]
             retLines += [
-                "\t{{{0}}}.{1}.Build.0 = {1}".format(str(self.m_VCXProjects[projName]["guid"]).upper(), p["project_target"]) for
+                "\t{0}.{1}.Build.0 = {1}".format(self.m_VCXProjects[projName]["guid"], p["project_target"]) for
                 p in vcxPlats]
         return retLines + ["EndGlobalSection"]
 
@@ -466,9 +555,9 @@ class MSVCGenerator(BuildGenerator):
         retLines = []
 
         for proj in self.m_VCXProjects:
-            retLines += ["Project(\"{{{0}}}\") = \"{1}\", \"{2}\", \"{{{3}}}\"".format(
-                str(solGUID).upper(), proj, self.m_VCXProjects[proj]["vcxPath"],
-                str(self.m_VCXProjects[proj]["guid"]).upper())]
+            retLines += ["Project(\"{0}\") = \"{1}\", \"{2}\", \"{3}\"".format(
+                solGUID, proj, self.m_VCXProjects[proj]["vcxPath"],
+                self.m_VCXProjects[proj]["guid"])]
             retLines += self._projgen_deps(proj, self.m_VCXProjects)
             retLines += ["EndProject"]
 
@@ -483,7 +572,7 @@ class MSVCGenerator(BuildGenerator):
             if dep["linktype"] != "local":
                 continue
 
-            retLines += ["\t\t{{{0}}} = {{{0}}}".format(str(vcxProjects[dep['name']]["guid"]).upper())]
+            retLines += ["\t\t{0} = {0}".format(vcxProjects[dep['name']]["guid"])]
 
         if len(retLines) == 1:
             return ""

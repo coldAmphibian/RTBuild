@@ -2,8 +2,8 @@ complexlib_files = \
 (
 	# C
 	{"name":"foo.c", "type":"c", "configuration":"*", "platform":"*", "PROPS":{}},
-	{"name":"plat_win.c", "type":"c", "configuration":"Windows", "platform":"*", "PROPS":{}},
-	{"name":"plat_linux.c", "type":"c", "configuration":"Linux", "platform":"*", "PROPS":{}},
+	{"name":"plat_win.c", "type":"c", "configuration":"Windows", "platform":"*", "PROPS":{"ide.filter":"Platform/Linux"}},
+	{"name":"plat_linux.c", "type":"c", "configuration":"Linux", "platform":"*", "PROPS":{"ide.filter":"Platform/Windows"}},
 	{"name":"add.c", "type":"c", "configuration":"*", "platform":"*", "PROPS":{}},
 	# x86-specific
 	{"name":"arch/x86/asmadd_win.asm", "type":"custom:yasm", "configuration":"Windows", "platform":"x86-*",
