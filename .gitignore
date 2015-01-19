@@ -17,5 +17,6 @@ doc/
 *.sdf
 *.opensdf
 *.suo
+*.filters
 
 Makefile

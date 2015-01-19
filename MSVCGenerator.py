@@ -155,8 +155,6 @@ class MSVCGenerator(BuildGenerator):
                                 vf["dir"] = f["dir"]
                                 vf["link"] = f["link"]
 
-                                #if vf["type"].startswith("custom"):
-
         return vcxProj
 
     def generate(self, projects, targets, props, custTools):
@@ -343,7 +341,8 @@ class MSVCGenerator(BuildGenerator):
                     self._write_custom_target(tmp, f, vcxProj, rawProjects, platforms, targets)
                 elif f["type"] in ["c", "cpp"]:
                     self._write_clcompile_target(tmp, f, vcxProj, rawProjects, platforms, targets)
-
+                elif f["type"] in ["h", "hpp"]:
+                    self._write_clinclude_target(tmp, f, vcxProj, rawProjects, platforms, targets)
                 self._write_filter(f, vcxFilter)
 
             # Add inter-project deps
@@ -377,6 +376,8 @@ class MSVCGenerator(BuildGenerator):
         inFile = os.path.join(f["dir"], f["name"])
         if f["type"] in ["c", "cpp"]:
             type = "ClCompile"
+        elif f["type"] in ["h", "hpp"]:
+            type = "ClInclude"
         else:
             type = "CustomBuild"
 
@@ -389,6 +390,11 @@ class MSVCGenerator(BuildGenerator):
                     outFilter.add_file(inFile, type, tmp["PROPS"]["ide.filter"].replace('/', '\\'))
                 break
             break
+
+    def _write_clinclude_target(self, root, f, vcxProj, rawProjects, platforms, targets):
+        inFile = os.path.join(f["dir"], f["name"])
+        tmp = XMLTree.Element("ClInclude", Include=inFile)
+        root.append(tmp)
 
     def _write_clcompile_target(self, root, f, vcxProj, rawProjects, platforms, targets):
         inFile = os.path.join(f["dir"], f["name"])

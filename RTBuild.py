@@ -363,15 +363,7 @@ class RTBuild(object):
                     for key in rawProject["PROPS"]:
                         self._validate_property(key, rawProject["PROPS"][key])
 
-                    #for key in rawProject["CXXPROPS"]:
-                    #    self._validate_property("CXXPROPS", key, rawProject["CXXPROPS"][key])
-
-                    #for key in rawProject["CPPPROPS"]:
-                    #    self._validate_property("CPPPROPS", key, rawProject["CPPPROPS"][key])
-
                     procProj["PROPS"] = rawProject["PROPS"]
-                    #procProj["CXXPROPS"] = rawProject["CXXPROPS"]
-                    #procProj["CPPPROPS"] = rawProject["CPPPROPS"]
 
                     procProj["makeDeps"] = [
                         {"name": i["name"],
@@ -394,41 +386,44 @@ class RTBuild(object):
                     procProj["files"] = []
                     # ...and for each file...
                     for f in rawProject["files"]:
-                        if fnmatch.fnmatch(config, f["configuration"]) and fnmatch.fnmatch(platform, f["platform"]):
-                            fEntry = {"fullpath": os.path.relpath(os.path.join(procProj["projdir"], f["name"])),
-                                      "type":f["type"][:]}
-                            fileDir, fileName = os.path.split(f["name"])
-                            fEntry["dir"] = fileDir
-                            fEntry["name"] = fileName[:]
-                            fEntry["input"] = f["name"]
+                        # Validate the file
+                        if "name" not in f:
+                            raise Exception("In project {0}: File without name.".format(project))
+                        if "type" not in f:
+                            raise Exception("In project {0}: File {1} without type.".format(project, f["name"]))
+                        if f["type"] not in ["c", "cpp", "h", "hpp"] and not f["type"].startswith("custom:"):
+                            raise Exception("In project {0}: Invalid type {1} for {2}".format(project, f["type"], f["name"]))
 
-                            # Validate the per-file properties
-                            for key in f.get("PROPS", {}):
-                                self._validate_property(key, f["PROPS"][key])
-                                """
-                                if f["type"] == "c":
-                                    try:
-                                        self._validate_property("PROPS", key, f["PROPS"][key])
-                                    except Exception as e:
-                                        self._validate_property("CPPPROPS", key, f["PROPS"][key])
-                                elif f["type"] == "cpp":
-                                    try:
-                                        self._validate_property("CXXPROPS", key, f["PROPS"][key])
-                                    except Exception as e:
-                                        self._validate_property("CPPPROPS", key, f["PROPS"][key])
-                                """
+                        # Process the file
+                        fEntry = {"fullpath": os.path.relpath(os.path.join(procProj["projdir"], f["name"])), "type":f["type"][:]}
+                        fileDir, fileName = os.path.split(f["name"])
+                        fEntry["dir"] = fileDir
+                        fEntry["name"] = fileName[:]
+                        fEntry["input"] = f["name"]
 
-                            fEntry["PROPS"] = copy.deepcopy(f.get("PROPS", {}))
+                        # Validate the per-file properties
+                        for key in f.get("PROPS", {}):
+                            self._validate_property(key, f["PROPS"][key])
+
+                        fEntry["PROPS"] = copy.deepcopy(f.get("PROPS", {}))
+
+                        # If we're a header, then add us regardless
+                        if f["type"] in ["h", "hpp"]:
+                            fEntry["link"] = "false"
+                            procProj["files"].append(fEntry)
+                        # Otherwise, only add us if our conditions match
+                        elif fnmatch.fnmatch(config, f["configuration"]) and fnmatch.fnmatch(platform, f["platform"]):
                             linkFlag = False
+                            # Handle Custom Tools
                             if fEntry["type"].startswith("custom"):
                                 tmp = fEntry["type"].split(":", 1)
                                 if len(tmp) != 2:
-                                    raise Exception("Custom file \"{0}\" without tool.", fEntry["fullpath"])
+                                    raise Exception("In project {0}: Custom file \"{1}\" without tool.".format(project, fEntry["fullpath"]))
 
                                 try:
                                     custTool = self.m_CustomTools[tmp[1]]
                                 except KeyError as e:
-                                    raise Exception("Unknown custom tool \"{0}\"".format(tmp[1]))
+                                    raise Exception("In project {0}: Unknown custom tool \"{1}\"".format(project, tmp[1]))
 
                                 def subProc(s):
                                     return RTBuild._ss_file_apply(self, s, fEntry, procProj, config, platform, exclude=[])
@@ -438,8 +433,8 @@ class RTBuild(object):
 
                                 if f["link"] == "true":
                                     linkFlag = True
-
-                            if fEntry["type"] in ["c", "cpp"]:
+                            # Handle C/C++
+                            elif fEntry["type"] in ["c", "cpp"]:
                                 linkFlag = True
                                 fEntry["defines"] = currPlat["CPPDEFS"] + procProj["CPPDEFS"]
 
@@ -448,9 +443,7 @@ class RTBuild(object):
                                 elif fEntry["type"] == "cpp":
                                     fEntry["defines"] += currPlat["CXXDEFS"] + procProj["CXXDEFS"]
                                 fEntry["objdir"] = os.path.join(procProj["intdir"], rawProject["projdir"], fileDir)
-
                             fEntry["link"] = {True:"true", False:"false"}[linkFlag]
-                            #print fEntry
                             procProj["files"].append(fEntry)
 
     def generate(self, generator):

@@ -103,6 +103,8 @@ class MakefileGenerator(BuildGenerator):
                 currPlat = currCfg[platform]
                 for project in currPlat:
                     currProj = currPlat[project]
+                    # Remove all headers, we don't care about them here
+                    currProj["files"] = [f for f in currProj["files"] if f["type"] not in ["h", "hpp"]]
                     currProps = {"CFLAGS":self._decode_c_props({p:currProj["PROPS"][p] for p in currProj["PROPS"] if p.startswith("c.")}),
                                  "CXXFLAGS":self._decode_cxx_props({p:currProj["PROPS"][p] for p in currProj["PROPS"] if p.startswith("cxx.")}),
                                  "CPPFLAGS":self._decode_c_common_props({p:currProj["PROPS"][p] for p in currProj["PROPS"] if p.startswith("cpp.")})}
@@ -112,23 +114,19 @@ class MakefileGenerator(BuildGenerator):
                     for f in currProj["files"]:
                         self._generate_build_command(f, targets[config][platform], self.m_Tools[config][platform],
                                                      currProj, currProps)
-                        #print f
-                        #exit(1)
                         buildData = f["build"]
 
                         mTarget = makefile[buildData["objpath"]] = {"commands": [" ".join(l for l in c) for c in buildData["buildCommand"]]}
 
-                        #RTBuild.niceprint(mTarget)
                         try:
                             if len(buildData["depCommand"]) != 0:
                                 depString = subprocess.check_output(buildData["depCommand"], shell=False,
-                                                                    universal_newlines=True).split(": ", 1)
+                                                                    universal_newlines=True).split(':', 1)
+
                                 if len(depString) != 2:
                                     raise Exception()
 
-                                mTarget["deps"] = [i for i in
-                                                   depString[1].strip().replace('\n', '').replace('\r', '').replace(
-                                                       '\\', '').split(' ') if i != '']
+                                mTarget["deps"] = [i for i in depString[1].strip().replace('\n', '').replace('\r', '').replace('\\', '').split(' ') if i is not ""]
                             else:
                                 mTarget["deps"] = []
 
@@ -144,11 +142,6 @@ class MakefileGenerator(BuildGenerator):
                                                                    "rm -rf \"{0}\"".format(currProj["outpath"])],
                                                       "deps": ([d["fullname"] for d in currProj["makeDeps"]] +
                                                                  [f["build"]["objpath"] for f in currProj["files"]])}
-                                                               #[{True:os.path.relpath(os.path.join(currProj["projdir"], f["build"]["objpath"]), "."), False:f["build"]["objpath"]}[f["type"].startswith("custom")] for f in currProj["files"]])}
-
-                    #print [f["build"]["objpath"] for f in currProj["files"] if f["type"].startswith("custom")]
-
-                    #print [{True:os.path.relpath(os.path.join(currProj["projdir"], f["build"]["objpath"]), "."), False:f["build"]["objpath"]}[f["type"].startswith("custom")] for f in currProj["files"]]
 
         # Calculate the project deps
         for config in projects:
@@ -277,8 +270,8 @@ class MakefileGenerator(BuildGenerator):
                 command += ["-fPIC"]
 
             depCommand += ["-MM"] + defFlags + buildFlags
-
             depCommand += [fEntry["fullpath"]]
+
             command += ["-o", buildData["objpath"], fEntry["fullpath"]]
 
             buildData["buildflags"] = buildFlags
