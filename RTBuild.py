@@ -360,6 +360,8 @@ class RTBuild(object):
                     procProj["outfile"] = self._ss_project_apply(rawProject["outfile"], procProj, config, platform)
                     procProj["outpath"] = os.path.join(procProj["outdir"], procProj["outfile"])
 
+                    procProj["INCLUDE_DIRS"] = [self._ss_project_apply(i, procProj, config, platform) for i in rawProject["INCLUDE_DIRS"]]
+
                     for key in rawProject["PROPS"]:
                         self._validate_property(key, rawProject["PROPS"][key])
 

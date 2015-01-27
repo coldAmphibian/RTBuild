@@ -26,14 +26,15 @@ complexlib_deps = \
 
 def getProjectInfo():
 	return {
-		"name":		"complexlib",
-		"outdir":	"bin/%CONFIGURATION%/%PLATFORM%",
-		"outfile":	"%PROJECTNAME%%TARGETEXT%",
-		"type":		"module",
-		"files":	complexlib_files,
-		"PROPS":	{},
-		"CPPDEFS":	["COMPLEXLIB_EXPORTS"],
-		"CDEFS":	[],
-		"CXXDEFS":	[],
-		"deps":		complexlib_deps,
+		"name":			"complexlib",
+		"outdir":		"bin/%CONFIGURATION%/%PLATFORM%",
+		"outfile":		"%PROJECTNAME%%TARGETEXT%",
+		"type":			"module",
+		"files":		complexlib_files,
+		"INCLUDE_DIRS":	[],
+		"PROPS":		{},
+		"CPPDEFS":		["COMPLEXLIB_EXPORTS"],
+		"CDEFS":		[],
+		"CXXDEFS":		[],
+		"deps":			complexlib_deps,
 		}

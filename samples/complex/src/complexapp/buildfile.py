@@ -10,15 +10,16 @@ complexapp_deps = \
 
 def getProjectInfo():
 	return {
-		"name":		"complexapp",
-		"outdir":	"bin/%CONFIGURATION%/%PLATFORM%",
-		"outfile":	"%PROJECTNAME%%TARGETEXT%",
-		"type":		"executable",
-		"files":	complexapp_files,
-		"PROPS":	{},
-		"CPPDEFS":	[],
-		"CDEFS":	[],
-		"CXXDEFS":	[],
-		"deps":		complexapp_deps
+		"name":			"complexapp",
+		"outdir":		"bin/%CONFIGURATION%/%PLATFORM%",
+		"outfile":		"%PROJECTNAME%%TARGETEXT%",
+		"type":			"executable",
+		"files":		complexapp_files,
+		"INCLUDE_DIRS": [],
+		"PROPS":		{},
+		"CPPDEFS":		[],
+		"CDEFS":		[],
+		"CXXDEFS":		[],
+		"deps":			complexapp_deps
 		};
 

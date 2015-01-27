@@ -321,7 +321,11 @@ class MSVCGenerator(BuildGenerator):
                 tmp.append(tmp2)
 
                 tmp3 = XMLTree.Element("AdditionalIncludeDirectories")
+				# Global INCLUDE_DIRS are relative to solution root
                 tmp3.text = ";".join([os.path.relpath(i, os.path.dirname(vcxProj["vcxPath"])) for i in self.m_Properties["INCLUDE_DIRS"]])
+                tmp3.text += ";"
+				# Project INCLUDE_DIRS are relative to project root
+                tmp3.text += ";".join(makProj["INCLUDE_DIRS"])
                 tmp2.append(tmp3)
 
                 tmp3 = XMLTree.Element("PreprocessorDefinitions")

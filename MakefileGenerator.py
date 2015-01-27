@@ -109,6 +109,8 @@ class MakefileGenerator(BuildGenerator):
                                  "CXXFLAGS":self._decode_cxx_props({p:currProj["PROPS"][p] for p in currProj["PROPS"] if p.startswith("cxx.")}),
                                  "CPPFLAGS":self._decode_c_common_props({p:currProj["PROPS"][p] for p in currProj["PROPS"] if p.startswith("cpp.")})}
 
+                    currProj["INCLUDE_DIRS"] = ["-I{0}".format(os.path.join(currProj["projdir"], i)) for i in currProj["INCLUDE_DIRS"]]
+
                     makefile[".PHONY"]["deps"] += [currProj["fullname"]]
 
                     for f in currProj["files"]:
@@ -245,9 +247,10 @@ class MakefileGenerator(BuildGenerator):
 
         # Now handle C, C++ files. These are done together, as they have so much in common
         elif fEntry["type"] in ["c", "cpp"]:
-            buildFlags = self.m_Properties["INCLUDE_DIRS"] + ["-c"] + {True: ["-g"], False: []}[self.m_Properties["DEBUG"] == "true"] + self.m_Properties["CPPFLAGS"] + \
+            buildFlags = self.m_Properties["INCLUDE_DIRS"] + project["INCLUDE_DIRS"] + ["-c"] + {True: ["-g"], False: []}[self.m_Properties["DEBUG"] == "true"] + self.m_Properties["CPPFLAGS"] + \
                          tools["CPPFLAGS"] + props["CPPFLAGS"]
-
+            print buildFlags
+            #exit(1)
             buildData["objpath"] = os.path.join(fEntry["objdir"], fEntry["name"] + ".o")
 
             buildData["buildCommand"] += [["mkdir", "-p", fEntry["objdir"]]]
