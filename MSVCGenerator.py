@@ -347,6 +347,9 @@ class MSVCGenerator(BuildGenerator):
                     self._write_clcompile_target(tmp, f, vcxProj, rawProjects, platforms, targets)
                 elif f["type"] in ["h", "hpp"]:
                     self._write_clinclude_target(tmp, f, vcxProj, rawProjects, platforms, targets)
+                elif f["type"] in ["none"]:
+                    self._write_none_target(tmp, f, vcxProj, rawProjects, platforms, targets)
+
                 self._write_filter(f, vcxFilter)
 
             # Add inter-project deps
@@ -382,6 +385,8 @@ class MSVCGenerator(BuildGenerator):
             type = "ClCompile"
         elif f["type"] in ["h", "hpp"]:
             type = "ClInclude"
+        elif f["type"] in ["none"]:
+            type = "None"
         else:
             type = "CustomBuild"
 
@@ -398,6 +403,11 @@ class MSVCGenerator(BuildGenerator):
     def _write_clinclude_target(self, root, f, vcxProj, rawProjects, platforms, targets):
         inFile = os.path.join(f["dir"], f["name"])
         tmp = XMLTree.Element("ClInclude", Include=inFile)
+        root.append(tmp)
+
+    def _write_none_target(self, root, f, vcxProj, rawProjects, platforms, targets):
+        inFile = os.path.join(f["dir"], f["name"])
+        tmp = XMLTree.Element("None", Include=inFile)
         root.append(tmp)
 
     def _write_clcompile_target(self, root, f, vcxProj, rawProjects, platforms, targets):

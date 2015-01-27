@@ -393,7 +393,7 @@ class RTBuild(object):
                             raise Exception("In project {0}: File without name.".format(project))
                         if "type" not in f:
                             raise Exception("In project {0}: File {1} without type.".format(project, f["name"]))
-                        if f["type"] not in ["c", "cpp", "h", "hpp"] and not f["type"].startswith("custom:"):
+                        if f["type"] not in ["c", "cpp", "h", "hpp", "none"] and not f["type"].startswith("custom:"):
                             raise Exception("In project {0}: Invalid type {1} for {2}".format(project, f["type"], f["name"]))
 
                         # Process the file
@@ -409,8 +409,8 @@ class RTBuild(object):
 
                         fEntry["PROPS"] = copy.deepcopy(f.get("PROPS", {}))
 
-                        # If we're a header, then add us regardless
-                        if f["type"] in ["h", "hpp"]:
+                        # If we're a header or a generic file, then add us regardless
+                        if f["type"] in ["h", "hpp", "none"]:
                             fEntry["link"] = "false"
                             procProj["files"].append(fEntry)
                         # Otherwise, only add us if our conditions match

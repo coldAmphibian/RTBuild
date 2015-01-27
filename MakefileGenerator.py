@@ -104,7 +104,7 @@ class MakefileGenerator(BuildGenerator):
                 for project in currPlat:
                     currProj = currPlat[project]
                     # Remove all headers, we don't care about them here
-                    currProj["files"] = [f for f in currProj["files"] if f["type"] not in ["h", "hpp"]]
+                    currProj["files"] = [f for f in currProj["files"] if f["type"] not in ["h", "hpp", "none"]]
                     currProps = {"CFLAGS":self._decode_c_props({p:currProj["PROPS"][p] for p in currProj["PROPS"] if p.startswith("c.")}),
                                  "CXXFLAGS":self._decode_cxx_props({p:currProj["PROPS"][p] for p in currProj["PROPS"] if p.startswith("cxx.")}),
                                  "CPPFLAGS":self._decode_c_common_props({p:currProj["PROPS"][p] for p in currProj["PROPS"] if p.startswith("cpp.")})}
