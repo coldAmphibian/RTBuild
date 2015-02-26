@@ -321,16 +321,34 @@ class MSVCGenerator(BuildGenerator):
                 tmp.append(tmp2)
 
                 tmp3 = XMLTree.Element("AdditionalIncludeDirectories")
-				# Global INCLUDE_DIRS are relative to solution root
+                # Global INCLUDE_DIRS are relative to solution root
                 tmp3.text = ";".join([os.path.relpath(i, os.path.dirname(vcxProj["vcxPath"])) for i in self.m_Properties["INCLUDE_DIRS"]])
                 tmp3.text += ";"
-				# Project INCLUDE_DIRS are relative to project root
+                # Project INCLUDE_DIRS are relative to project root
                 tmp3.text += ";".join(makProj["INCLUDE_DIRS"])
                 tmp2.append(tmp3)
 
                 tmp3 = XMLTree.Element("PreprocessorDefinitions")
                 makProj = rawProjects[p["config"]][p["platform"]][projName]
                 tmp3.text = ";".join(d for d in (targets[p["config"]][p["platform"]]["CPPDEFS"] + self.m_Properties["CPPDEFS"]) + makProj["CPPDEFS"])
+                tmp2.append(tmp3)
+                
+                # Handle debugging functionality
+                if self.m_Properties["DEBUG"] is "true":
+                    tmp3 = XMLTree.Element("DebugInformationFormat")
+                    tmp3.text = "ProgramDatabase"
+                    tmp2.append(tmp3)
+                
+                tmp2 = XMLTree.Element("Link")
+                tmp.append(tmp2)
+                
+                tmp3 = XMLTree.Element("GenerateDebugInformation")
+                tmp3.text = self.m_Properties["DEBUG"]
+                tmp2.append(tmp3)
+                
+                tmp3 = XMLTree.Element("SubSystem")
+                # TODO: Put in a way to specify this. Possibly a msvc-specific property?
+                tmp3.text = "Console"
                 tmp2.append(tmp3)
 
             root.append(XMLTree.Element("Import", Project="$(VCTargetsPath)\Microsoft.Cpp.targets"))
